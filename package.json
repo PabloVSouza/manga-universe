@@ -1,0 +1,50 @@
+{
+	"name": "manga-universe",
+	"version": "1.0.0",
+	"description": "Aplicativo para download e leitura de mangás utilizando Electron e VueJS",
+	"repository": "https://github.com/pablovsouza/manga-universe",
+	"author": "Pablo Souza",
+	"license": "MIT",
+	"main": "background.js",
+	"scripts": {
+		"serve": "vue-cli-service serve",
+		"build": "vue-cli-service build",
+		"lint": "vue-cli-service lint",
+		"electron:build": "vue-cli-service electron:build",
+		"electron:serve": "vue-cli-service electron:serve",
+		"postinstall": "electron-builder install-app-deps",
+		"postuninstall": "electron-builder install-app-deps",
+		"gh-publish": "vue-cli-service electron:build -p always"
+	},
+	"dependencies": {
+		"axios": "^0.19.2",
+		"crypto-js": "^4.0.0",
+		"electron": "^9.0.4",
+		"electron-updater": "^4.3.5",
+		"fs": "^0.0.1-security",
+		"lodash": "^4.17.20",
+		"nedb": "^1.8.0",
+		"qs": "^6.9.4",
+		"vex-dialog": "^1.1.0",
+		"vex-js": "^4.1.0",
+		"vue": "^2.6.11",
+		"vue-router": "^3.2.0",
+		"vuex": "^3.4.0"
+	},
+	"devDependencies": {
+		"@vue/cli-plugin-babel": "~4.4.0",
+		"@vue/cli-plugin-eslint": "~4.4.0",
+		"@vue/cli-plugin-router": "~4.4.0",
+		"@vue/cli-plugin-vuex": "~4.4.0",
+		"@vue/cli-service": "~4.4.0",
+		"babel-eslint": "^10.1.0",
+		"electron-devtools-installer": "^3.1.0",
+		"eslint": "^6.7.2",
+		"eslint-plugin-vue": "^6.2.2",
+		"sass": "^1.26.5",
+		"sass-loader": "^8.0.2",
+		"vue-cli-plugin-electron-builder": "~2.0.0-rc.4",
+		"vue-template-compiler": "^2.6.11",
+		"yarn": "^1.22.4"
+	}
+}

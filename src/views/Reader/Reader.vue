@@ -1,0 +1,159 @@
+<template>
+	<div id="reader" :style="{ backgroundImage: imgDirectory() }"></div>
+</template>
+
+<script>
+const { ipcRenderer } = require("electron")
+import { mapState } from "vuex"
+
+export default {
+	data() {
+		return {
+			currentPage: 0,
+		}
+	},
+
+	computed: {
+		...mapState(["reader", "users", "appFolder"]),
+	},
+
+	created() {
+		this.changeTitle()
+		window.addEventListener("keydown", this.handleKeys)
+
+		const currentProgress = this.reader.readProgress.find(
+			(progress) => progress.chapter_id == this.reader.activeChapter._id
+		)
+
+		if (currentProgress) {
+			this.currentPage = currentProgress.currentPage - 1
+		}
+	},
+
+	beforeDestroy() {
+		window.removeEventListener("keydown", this.handleKeys)
+	},
+
+	methods: {
+		changeTitle() {
+			ipcRenderer.send(
+				"change_window_title",
+				`Manga Universe - ${this.reader.activeManga.name} - Capítulo ${
+					this.reader.activeChapter.number
+				} - Página ${this.currentPage + 1}/${
+					this.reader.activeChapter.pages.length
+				}`
+			)
+		},
+
+		imgDirectory() {
+			let directory = ""
+
+			if (this.reader.activeManga._id != undefined) {
+				const filterFolderName = this.reader.activeManga.name.replace(":", "-")
+
+				directory = `url('file:///${
+					this.appFolder
+				}/mangas/${filterFolderName}/${this.reader.activeChapter.number}/${
+					this.reader.activeChapter.pages[this.currentPage]
+				}')`
+			}
+			directory = directory.replace(/\\/g, "/")
+
+			return directory
+		},
+
+		handleKeys(key) {
+			if (key.key == "ArrowLeft") {
+				if (!this.users.activeUser.reverse) {
+					this.changePage(-1)
+				} else {
+					this.changePage(1)
+				}
+			}
+			if (key.key == "ArrowRight") {
+				if (!this.users.activeUser.reverse) {
+					this.changePage(1)
+				} else {
+					this.changePage(-1)
+				}
+			}
+			if (key.key == "Escape") {
+				this.$router.push("/")
+			}
+		},
+
+		changePage(factor) {
+			if (
+				factor + this.currentPage >= 0 &&
+				factor + this.currentPage <= this.reader.activeChapter.pages.length - 1
+			) {
+				this.currentPage += factor
+				ipcRenderer.send("update_progress", {
+					chapter_id: this.reader.activeChapter._id,
+					user_id: this.users.activeUser._id,
+					totalPages: this.reader.activeChapter.pages.length,
+					currentPage: this.currentPage + 1,
+				})
+			} else {
+				if (factor + this.currentPage < 0) {
+					const currentChapterIndex = this.reader.chapterList.findIndex(
+						(chapter) => chapter._id == this.reader.activeChapter._id
+					)
+
+					if (currentChapterIndex > 0) {
+						this.reader.activeChapter = this.reader.chapterList[
+							currentChapterIndex - 1
+						]
+
+						this.currentPage = this.reader.activeChapter.pages.length - 1
+					} else {
+						this.$router.push("/")
+					}
+				}
+
+				if (
+					factor + this.currentPage >
+					this.reader.activeChapter.pages.length - 1
+				) {
+					const currentChapterIndex = this.reader.chapterList.findIndex(
+						(chapter) => chapter._id == this.reader.activeChapter._id
+					)
+
+					if (currentChapterIndex != this.reader.chapterList.length - 1) {
+						if (currentChapterIndex < this.reader.chapterList.length - 1) {
+							this.reader.activeChapter = this.reader.chapterList[
+								currentChapterIndex + 1
+							]
+							this.currentPage = 0
+						}
+					} else {
+						this.$router.push("/")
+					}
+				}
+			}
+		},
+	},
+	watch: {
+		currentPage() {
+			this.changeTitle()
+		},
+	},
+}
+</script>
+
+<style lang="scss">
+#reader {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+}
+</style>
