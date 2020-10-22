@@ -4,15 +4,15 @@
 			<div id="generalContent">
 				<h1>{{ reader.activeManga.name }}</h1>
 				<p>
-					<label>Autor:</label>
+					<label>{{ $lang.Home.mangaChapterSelection.author }}:</label>
 					{{ reader.activeManga.author }}
 				</p>
 				<p>
-					<label>Artista:</label>
+					<label>{{ $lang.Home.mangaChapterSelection.artist }}:</label>
 					{{ reader.activeManga.artist }}
 				</p>
 				<p>
-					<label>Gênero:</label>
+					<label>{{ $lang.Home.mangaChapterSelection.genre }}:</label>
 					<template v-for="categorie in reader.activeManga.genres">
 						{{ categorie.name }},
 					</template>
@@ -20,7 +20,7 @@
 			</div>
 			<div id="description">
 				<p>
-					<label>Descrição:</label>
+					<label>{{ $lang.Home.mangaChapterSelection.description }}:</label>
 					{{ reader.activeManga.description }}
 				</p>
 			</div>
@@ -29,11 +29,14 @@
 		</div>
 		<div id="body" class="noSelect">
 			<div id="mangaMenu">
-				<button title="Baixar mais capítulos" @click.prevent="downloadMore()">
+				<button
+					:title="$lang.Home.mangaChapterSelection.titleDownloadMore"
+					@click.prevent="downloadMore()"
+				>
 					<img src="@/assets/download-icon-2.svg" alt="download" />
 				</button>
 				<button
-					title="Ler de onde parou"
+					:title="$lang.Home.mangaChapterSelection.titleContinueReading"
 					style="float: right"
 					@click.prevent="continueReading()"
 				>
@@ -47,21 +50,21 @@
 							v-for="chapter in reader.chapterList"
 							:key="chapter._id"
 							@dblclick.prevent="readChapter(chapter)"
-							title="Clique duplo para ler o capítulo"
+							:title="$lang.Home.mangaChapterSelection.titleDoubleClickRead"
 						>
 							<td width="50">{{ chapter.number }}</td>
 							<td>{{ chapter.name }}</td>
 							<td width="80">{{ chapterProgress(chapter) }}%</td>
 							<td
 								width="50"
-								title="Marcar como Não Lido"
+								:title="$lang.Home.mangaChapterSelection.titleMarkAsRead"
 								@click="markAsUnread(chapter)"
 							>
 								<img src="@/assets/closed-book-icon.svg" alt="" />
 							</td>
 							<td
 								width="50"
-								title="Marcar como Lido"
+								:title="$lang.Home.mangaChapterSelection.titleMarkAsUnread"
 								@click="markAsRead(chapter)"
 							>
 								<img src="@/assets/book-stack.svg" alt="" />

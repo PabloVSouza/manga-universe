@@ -3,10 +3,10 @@
 		<h1>{{ users.activeUser.name }}</h1>
 		<ul>
 			<li>
-				Inverter teclas:
+				{{ $lang.Home.userMenu.btnReverseKeys }}:
 				<input type="checkbox" v-model="users.activeUser.reverse" />
 			</li>
-			<li @click="changeUser()">Trocar de Usuário</li>
+			<li @click="changeUser()">{{ $lang.Home.userMenu.btnChangeUser }}</li>
 		</ul>
 	</div>
 </template>

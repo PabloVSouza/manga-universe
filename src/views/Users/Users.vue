@@ -2,12 +2,12 @@
 	<div id="Users">
 		<CreateUser v-if="users.createUser" :editUser="userEdit" />
 		<template v-if="!users.createUser">
-			<h1>Selecione o seu Usuário</h1>
+			<h1>{{ $lang.Users.headerText }}</h1>
 			<div id="userArea">
 				<div
 					class="newUser"
 					@click="users.createUser = true"
-					title="Criar usuário"
+					:title="$lang.Users.titleCreateUser"
 				>
 					+
 				</div>
@@ -19,10 +19,14 @@
 				>
 					<div class="userName">{{ user.name }}</div>
 					<div class="buttonArea">
-						<button title="Editar Usuário" @click="editUser(user)" id="left">
+						<button
+							:title="$lang.Users.titleEditUser"
+							@click="editUser(user)"
+							id="left"
+						>
 							<img src="@/assets/pencil.svg" alt="edit" />
 						</button>
-						<button title="Apagar Usuário" id="right">
+						<button :title="$lang.Users.titleRemoveUser" id="right">
 							<img
 								src="@/assets/trash.svg"
 								alt="delete"
