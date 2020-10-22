@@ -1,14 +1,24 @@
 <template>
 	<div id="CreateUser">
-		<h1>Digite o nome de Usuário</h1>
+		<h1>{{ $lang.Users.CreateUser.headerText }}</h1>
 		<div id="formArea">
-			<input type="text" placeholder="Seu usuário" v-model="user.name" />
+			<input
+				type="text"
+				:placeholder="$lang.Users.CreateUser.textPlaceHolder"
+				v-model="user.name"
+			/>
 		</div>
 		<div id="buttonArea">
-			<button @click.prevent="closeForm()">
-				<img src="@/assets/cancel.svg" alt="confirm" />
+			<button
+				@click.prevent="closeForm()"
+				:title="$lang.Users.CreateUser.titleCancel"
+			>
+				<img src="@/assets/cancel.svg" alt="cancel" />
 			</button>
-			<button @click.prevent="registerUser()">
+			<button
+				@click.prevent="registerUser()"
+				:title="$lang.Users.CreateUser.titleConfirm"
+			>
 				<img src="@/assets/confirm.svg" alt="confirm" />
 			</button>
 		</div>

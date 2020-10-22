@@ -15,35 +15,39 @@
 				{{ mangaInfo.name }}
 			</h1>
 			<p>
-				<span>Autor:</span>
+				<span>{{ $lang.Downloader.Detail.author }}:</span>
 				{{ mangaInfo.author }}
 			</p>
 			<p>
-				<span>Artista:</span>
+				<span>{{ $lang.Downloader.Detail.artist }}:</span>
 				{{ mangaInfo.artist }}
 			</p>
 			<p>
-				<span>Gênero:</span>
+				<span>{{ $lang.Downloader.Detail.genre }}:</span>
 				<template v-for="categorie in mangaInfo.categories">
 					{{ categorie.name }},
 				</template>
 			</p>
 			<p>
-				<span>Descrição:</span>
+				<span>{{ $lang.Downloader.Detail.description }}:</span>
 				{{ mangaInfo.description }}
 			</p>
 		</div>
 		<div id="menuChapters">
-			{{ downloader.downloadQueue.length }} adicionados a fila de Download.
-			<button @click.prevent="downloadFromQueue" title="Baixar Capítulos">
+			{{ downloader.downloadQueue.length }}
+			{{ $lang.Downloader.Detail.downloadQueue }}.
+			<button
+				@click.prevent="downloadFromQueue"
+				:title="$lang.Downloader.Detail.titleDownloadQueue"
+			>
 				<img src="@/assets/download-icon-2.svg" alt="download" />
 			</button>
-			<button @click="markAll()" title="Marcar/Desmarcar Todos">
+			<button @click="markAll()" :title="$lang.Downloader.Detail.titleMarkAll">
 				<img src="@/assets/clipboard.svg" alt="clipboard" />
 			</button>
 		</div>
 		<div id="chapters">
-			<h3>Capítulos:</h3>
+			<h3>{{ $lang.Downloader.Detail.chapters }}:</h3>
 			<ul>
 				<li
 					v-for="(chapter, key) in downloader.chapterList"

@@ -3,7 +3,7 @@
 		<div id="buttonGroupLeft">
 			<button
 				@click.prevent="$router.push('/downloader')"
-				title="Baixar Mangás"
+				:title="$lang.Home.topMenu.titleDownloadMangas"
 			>
 				<img src="@/assets/download-icon.svg" alt="download" />
 			</button>
@@ -13,7 +13,7 @@
 				id="btnUser"
 				@click.prevent="users.userMenu = !users.userMenu"
 				:style="styleBtn"
-				title="Menu do Usuário"
+				:title="$lang.Home.topMenu.titleUserMenu"
 			>
 				<img src="@/assets/user-profile.svg" alt="user" />
 			</button>

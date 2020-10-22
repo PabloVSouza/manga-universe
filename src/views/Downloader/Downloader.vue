@@ -14,7 +14,7 @@
 		<div id="topBar">
 			<input
 				type="text"
-				placeholder="Digite a sua busca"
+				:placeholder="$lang.Downloader.textPlaceholder"
 				v-model="searchTerms"
 				@input="isTyping = true"
 			/>
