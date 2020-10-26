@@ -57,14 +57,14 @@
 							<td width="80">{{ chapterProgress(chapter) }}%</td>
 							<td
 								width="50"
-								:title="$lang.Home.mangaChapterSelection.titleMarkAsRead"
+								:title="$lang.Home.mangaChapterSelection.titleMarkAsUnread"
 								@click="markAsUnread(chapter)"
 							>
 								<img src="@/assets/closed-book-icon.svg" alt="" />
 							</td>
 							<td
 								width="50"
-								:title="$lang.Home.mangaChapterSelection.titleMarkAsUnread"
+								:title="$lang.Home.mangaChapterSelection.titleMarkAsRead"
 								@click="markAsRead(chapter)"
 							>
 								<img src="@/assets/book-stack.svg" alt="" />
