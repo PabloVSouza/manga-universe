@@ -1,7 +1,10 @@
 <template>
 	<div
 		id="reader"
-		:style="{ backgroundImage: imgDirectory() }"
+		:style="[
+			{ backgroundImage: imgDirectory() },
+			toggleZoom ? { cursor: 'zoom-in' } : {},
+		]"
 		@mousemove="setMousePos($event)"
 		@click.right="toggleZoom = !toggleZoom"
 		@wheel="changeZoomFactor($event)"
@@ -202,7 +205,7 @@ export default {
 	background-repeat: no-repeat;
 	background-size: contain;
 	background-position: center;
-	cursor: zoom-in;
+
 	#zoomWindow {
 		width: 350px;
 		height: 350px;
