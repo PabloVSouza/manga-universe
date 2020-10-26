@@ -1,5 +1,15 @@
 <template>
-	<div id="reader" :style="{ backgroundImage: imgDirectory() }"></div>
+	<div
+		id="reader"
+		:style="{ backgroundImage: imgDirectory() }"
+		@mousemove="setMousePos($event)"
+		@click.right="toggleZoom = !toggleZoom"
+		@wheel="changeZoomFactor($event)"
+	>
+		<div id="zoomWindow" v-show="toggleZoom">
+			<div :style="[{ backgroundImage: imgDirectory() }, zoomPosition()]"></div>
+		</div>
+	</div>
 </template>
 
 <script>
@@ -10,6 +20,14 @@ export default {
 	data() {
 		return {
 			currentPage: 0,
+			toggleZoom: false,
+			zoomWidth: 0,
+			zoomHeight: 0,
+			mouse: {
+				x: 0,
+				y: 0,
+				zoomFactor: 2,
+			},
 		}
 	},
 
@@ -35,6 +53,35 @@ export default {
 	},
 
 	methods: {
+		setMousePos(e) {
+			this.mouse.x = e.pageX
+			this.mouse.y = e.pageY
+		},
+
+		changeZoomFactor(e) {
+			let delta = e.deltaY
+			if (delta == 100) {
+				if (this.mouse.zoomFactor - 1 >= 1) {
+					this.mouse.zoomFactor--
+				}
+			} else {
+				this.mouse.zoomFactor++
+			}
+		},
+
+		zoomPosition() {
+			if (this.toggleZoom) {
+				let pos = {
+					top: `${this.mouse.y * this.mouse.zoomFactor * -1 + 175}px`,
+					left: `${this.mouse.x * this.mouse.zoomFactor * -1 + 175}px`,
+					width: `${this.mouse.zoomFactor}00vw`,
+					height: ` ${this.mouse.zoomFactor}00vh`,
+				}
+
+				return pos
+			}
+		},
+
 		changeTitle() {
 			ipcRenderer.send(
 				"change_window_title",
@@ -155,5 +202,21 @@ export default {
 	background-repeat: no-repeat;
 	background-size: contain;
 	background-position: center;
+	cursor: zoom-in;
+	#zoomWindow {
+		width: 350px;
+		height: 350px;
+		box-shadow: 3px 7px 16px -5px rgba(0, 0, 0, 0.75);
+		position: absolute;
+		top: 50px;
+		right: 50px;
+		overflow: hidden;
+		div {
+			position: absolute;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center;
+		}
+	}
 }
 </style>
