@@ -9,7 +9,14 @@
 		@click.right="toggleZoom = !toggleZoom"
 		@wheel="changeZoomFactor($event)"
 	>
-		<div id="zoomWindow" v-show="toggleZoom">
+		<div
+			id="zoomWindow"
+			v-show="toggleZoom"
+			:style="{
+				top: `${mouse.y - zoomWindow.offsetHeight / 2}px`,
+				left: `${mouse.x - zoomWindow.offsetWidth / 2}px`,
+			}"
+		>
 			<div :style="[{ backgroundImage: imgDirectory() }, zoomPosition()]"></div>
 		</div>
 	</div>
@@ -31,11 +38,12 @@ export default {
 				y: 0,
 				zoomFactor: 2,
 			},
+			zoomWindow: {},
 		}
 	},
 
 	computed: {
-		...mapState(["reader", "users", "appFolder"]),
+		...mapState(["reader", "users", "app"]),
 	},
 
 	created() {
@@ -51,6 +59,10 @@ export default {
 		}
 	},
 
+	mounted() {
+		this.zoomWindow = document.getElementById("zoomWindow")
+	},
+
 	beforeDestroy() {
 		window.removeEventListener("keydown", this.handleKeys)
 	},
@@ -63,8 +75,9 @@ export default {
 
 		changeZoomFactor(e) {
 			let delta = e.deltaY
-			if (delta == 100) {
-				if (this.mouse.zoomFactor - 1 >= 1) {
+
+			if (delta > 0) {
+				if (this.mouse.zoomFactor - 1 >= 2) {
 					this.mouse.zoomFactor--
 				}
 			} else {
@@ -74,9 +87,11 @@ export default {
 
 		zoomPosition() {
 			if (this.toggleZoom) {
+				let width = this.zoomWindow.offsetWidth
+				let height = this.zoomWindow.offsetHeight
 				let pos = {
-					top: `${this.mouse.y * this.mouse.zoomFactor * -1 + 175}px`,
-					left: `${this.mouse.x * this.mouse.zoomFactor * -1 + 175}px`,
+					top: `${this.mouse.y * this.mouse.zoomFactor * -1 + height / 2}px`,
+					left: `${this.mouse.x * this.mouse.zoomFactor * -1 + width / 2}px`,
 					width: `${this.mouse.zoomFactor}00vw`,
 					height: ` ${this.mouse.zoomFactor}00vh`,
 				}
@@ -88,11 +103,10 @@ export default {
 		changeTitle() {
 			ipcRenderer.send(
 				"change_window_title",
-				`Manga Universe - ${this.reader.activeManga.name} - Capítulo ${
-					this.reader.activeChapter.number
-				} - Página ${this.currentPage + 1}/${
-					this.reader.activeChapter.pages.length
-				}`
+				`Manga Universe v${this.app.Version} | ${
+					this.reader.activeManga.name
+				} - Capítulo ${this.reader.activeChapter.number} - Página ${this
+					.currentPage + 1}/${this.reader.activeChapter.pages.length}`
 			)
 		},
 
@@ -103,7 +117,7 @@ export default {
 				const filterFolderName = this.reader.activeManga.name.replace(":", "-")
 
 				directory = `url('file:///${
-					this.appFolder
+					this.app.Folder
 				}/mangas/${filterFolderName}/${this.reader.activeChapter.number}/${
 					this.reader.activeChapter.pages[this.currentPage]
 				}')`
@@ -207,12 +221,11 @@ export default {
 	background-position: center;
 
 	#zoomWindow {
-		width: 350px;
-		height: 350px;
+		width: 40vh;
+		height: 40vh;
 		box-shadow: 3px 7px 16px -5px rgba(0, 0, 0, 0.75);
 		position: absolute;
-		top: 50px;
-		right: 50px;
+
 		overflow: hidden;
 		div {
 			position: absolute;

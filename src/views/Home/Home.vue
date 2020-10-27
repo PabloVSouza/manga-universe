@@ -20,18 +20,26 @@ import { mapState } from "vuex"
 import { ipcRenderer } from "electron"
 
 export default {
-	components: { topMenu, mangaList, mangaChapterSelection, userMenu },
+	components: {
+		topMenu,
+		mangaList,
+		mangaChapterSelection,
+		userMenu,
+	},
 
 	created() {
 		if (this.users.activeUser._id == undefined) {
 			this.$router.push("/users")
 		}
 
-		ipcRenderer.send("change_window_title", "Manga Universe")
+		ipcRenderer.send(
+			"change_window_title",
+			`Manga Universe v${this.app.Version}`
+		)
 	},
 
 	computed: {
-		...mapState(["reader", "users"]),
+		...mapState(["reader", "users", "app"]),
 	},
 
 	data() {

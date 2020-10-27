@@ -49,7 +49,7 @@ export default {
 	components: { CreateUser },
 
 	computed: {
-		...mapState(["users"]),
+		...mapState(["users", "app"]),
 		...mapActions(["setUser"]),
 
 		createUser() {
@@ -58,7 +58,10 @@ export default {
 	},
 
 	created() {
-		ipcRenderer.send("change_window_title", "Manga Universe - Usuários")
+		ipcRenderer.send(
+			"change_window_title",
+			`Manga Universe v${this.app.Version} | Usuários`
+		)
 	},
 
 	data() {

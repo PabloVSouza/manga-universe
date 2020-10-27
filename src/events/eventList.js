@@ -27,6 +27,14 @@ const eventList = () => {
 		}
 	})
 
+	ipcMain.on("get_app_version", () => {
+		try {
+			win.webContents.send("app_version", app.getVersion())
+		} catch (e) {
+			//ignore
+		}
+	})
+
 	ipcMain.on("get_wallpaper", async () => {
 		fs.readdir(app.getPath("userData"), function(err, files) {
 			files.forEach(function(file) {

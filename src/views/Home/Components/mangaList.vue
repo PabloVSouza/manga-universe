@@ -25,14 +25,14 @@ const { ipcRenderer } = require("electron")
 
 export default {
 	computed: {
-		...mapState(["reader", "appFolder"]),
+		...mapState(["reader", "app"]),
 	},
 
 	methods: {
 		coverDirectory(manga) {
 			const filterFolderName = manga.name.replace(":", "-")
 
-			const directory = `file:///${this.appFolder}/mangas/${filterFolderName}/${manga.cover}`
+			const directory = `file:///${this.app.Folder}/mangas/${filterFolderName}/${manga.cover}`
 
 			return directory
 		},

@@ -25,13 +25,13 @@ const { ipcRenderer } = require("electron")
 
 export default {
 	computed: {
-		...mapState(["loading", "users", "wallpaper", "appFolder"]),
+		...mapState(["loading", "users", "app"]),
 		...mapActions(["setupIpc"]),
 
 		getWallpaper() {
 			let response = ""
-			if (this.wallpaper != "") {
-				response = `url('file:///${this.appFolder}/${this.wallpaper}')`
+			if (this.app.wallpaper != "") {
+				response = `url('file:///${this.app.Folder}/${this.app.wallpaper}')`
 				response = response.replace(/\\/g, "/")
 			} else {
 				response = `url("${require("@/assets/wallpaper.jpg")}")`
