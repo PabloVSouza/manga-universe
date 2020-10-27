@@ -71,7 +71,7 @@ const { ipcRenderer } = require("electron")
 
 export default {
 	computed: {
-		...mapState(["downloader", "reader", "appFolder"]),
+		...mapState(["downloader", "reader", "app"]),
 
 		mangaInfo() {
 			if (this.downloadMore) {
@@ -112,7 +112,7 @@ export default {
 		coverDirectory(manga) {
 			const filterFolderName = manga.name.replace(":", "-")
 
-			const directory = `file:///${this.appFolder}/mangas/${filterFolderName}/${manga.cover}`
+			const directory = `file:///${this.app.Folder}/mangas/${filterFolderName}/${manga.cover}`
 
 			return directory
 		},

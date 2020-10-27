@@ -82,14 +82,14 @@ const { ipcRenderer } = require("electron")
 import { mapState } from "vuex"
 export default {
 	computed: {
-		...mapState(["reader", "users", "appFolder"]),
+		...mapState(["reader", "users", "app"]),
 		coverDirectory() {
 			let directory = ""
 
 			if (this.reader.activeManga._id != undefined) {
 				const filterFolderName = this.reader.activeManga.name.replace(":", "-")
 
-				directory = `file:///${this.appFolder}/mangas/${filterFolderName}/${this.reader.activeManga.cover}`
+				directory = `file:///${this.app.Folder}/mangas/${filterFolderName}/${this.reader.activeManga.cover}`
 			}
 
 			return directory

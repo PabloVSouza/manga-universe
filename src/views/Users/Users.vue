@@ -57,8 +57,8 @@ export default {
 		},
 	},
 
-	created() {
-		ipcRenderer.send("change_window_title", "Manga Universe - Usuários")
+	mounted() {
+		ipcRenderer.send("change_window_title", `| Usuários`)
 	},
 
 	data() {

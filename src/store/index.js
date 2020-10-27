@@ -8,8 +8,11 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
 	state: {
-		wallpaper: "",
-		appFolder: "",
+		app: {
+			wallpaper: "",
+			Folder: "",
+			Version: "",
+		},
 		loading: {
 			active: false,
 			loadingMessage: "",
@@ -47,13 +50,19 @@ export default new Vuex.Store({
 			ipcRenderer.send("get_wallpaper")
 
 			ipcRenderer.on("wallpaper", (event, file) => {
-				this.state.wallpaper = file
+				this.state.app.wallpaper = file
+			})
+
+			ipcRenderer.send("get_app_version")
+
+			ipcRenderer.on("app_version", (event, version) => {
+				this.state.app.Version = version
 			})
 
 			ipcRenderer.send("get_app_folder")
 
 			ipcRenderer.on("app_folder", (event, dir) => {
-				this.state.appFolder = dir
+				this.state.app.Folder = dir
 			})
 
 			ipcRenderer.on("connection_error", () => {
