@@ -21,6 +21,8 @@
 
 <script>
 import { mapActions, mapState } from "vuex"
+import path from "path"
+
 const { ipcRenderer } = require("electron")
 
 export default {
@@ -31,7 +33,10 @@ export default {
 		getWallpaper() {
 			let response = ""
 			if (this.app.wallpaper != "") {
-				response = `url('file:///${this.app.Folder}/${this.app.wallpaper}')`
+				response = `url('file:///${path.join(
+					this.app.Folder,
+					this.app.wallpaper
+				)}')`
 				response = response.replace(/\\/g, "/")
 			} else {
 				response = `url("${require("@/assets/wallpaper.jpg")}")`

@@ -21,6 +21,7 @@
 
 <script>
 import { mapState } from "vuex"
+import path from "path"
 const { ipcRenderer } = require("electron")
 
 export default {
@@ -32,7 +33,12 @@ export default {
 		coverDirectory(manga) {
 			const filterFolderName = manga.name.replace(":", "-")
 
-			const directory = `file:///${this.app.Folder}/mangas/${filterFolderName}/${manga.cover}`
+			const directory = `file:///${path.join(
+				this.app.Folder,
+				"mangas",
+				filterFolderName,
+				manga.cover
+			)}`
 
 			return directory
 		},
