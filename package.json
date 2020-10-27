@@ -1,6 +1,6 @@
 {
 	"name": "manga-universe",
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"description": "Aplicativo para download e leitura de mangás utilizando Electron e VueJS",
 	"repository": "https://github.com/pablovsouza/manga-universe",
 	"author": "Pablo Souza",
