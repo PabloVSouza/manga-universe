@@ -9,14 +9,7 @@
 		@click.right="toggleZoom = !toggleZoom"
 		@wheel="changeZoomFactor($event)"
 	>
-		<div
-			id="zoomWindow"
-			v-show="toggleZoom"
-			:style="{
-				top: `${mouse.y - zoomWindow.offsetHeight / 2}px`,
-				left: `${mouse.x - zoomWindow.offsetWidth / 2}px`,
-			}"
-		>
+		<div id="zoomWindow" :style="windowPosition">
 			<div :style="[{ backgroundImage: imgDirectory() }, zoomPosition()]"></div>
 		</div>
 	</div>
@@ -44,6 +37,23 @@ export default {
 
 	computed: {
 		...mapState(["reader", "users", "app"]),
+
+		windowPosition() {
+			let res = {}
+			if (this.toggleZoom) {
+				res = {
+					top: `${this.mouse.y - this.zoomWindow.offsetHeight / 2}px`,
+					left: `${this.mouse.x - this.zoomWindow.offsetWidth / 2}px`,
+				}
+			} else {
+				res = {
+					top: `-100vh`,
+					left: `-100vw`,
+				}
+			}
+
+			return res
+		},
 	},
 
 	created() {
