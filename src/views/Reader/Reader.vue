@@ -103,10 +103,11 @@ export default {
 		changeTitle() {
 			ipcRenderer.send(
 				"change_window_title",
-				`Manga Universe v${this.app.Version} | ${
-					this.reader.activeManga.name
-				} - Capítulo ${this.reader.activeChapter.number} - Página ${this
-					.currentPage + 1}/${this.reader.activeChapter.pages.length}`
+				`| ${this.reader.activeManga.name} - Capítulo ${
+					this.reader.activeChapter.number
+				} - Página ${this.currentPage + 1}/${
+					this.reader.activeChapter.pages.length
+				}`
 			)
 		},
 

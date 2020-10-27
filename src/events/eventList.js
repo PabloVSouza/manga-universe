@@ -16,7 +16,7 @@ const setWin = (extWin) => {
 
 const eventList = () => {
 	ipcMain.on("change_window_title", (event, param) => {
-		win.title = param
+		win.title = `Manga Universe v${app.getVersion()} ${param}`
 	})
 
 	ipcMain.on("get_app_folder", () => {

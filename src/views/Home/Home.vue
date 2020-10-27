@@ -32,14 +32,11 @@ export default {
 			this.$router.push("/users")
 		}
 
-		ipcRenderer.send(
-			"change_window_title",
-			`Manga Universe v${this.app.Version}`
-		)
+		ipcRenderer.send("change_window_title", ``)
 	},
 
 	computed: {
-		...mapState(["reader", "users", "app"]),
+		...mapState(["reader", "users"]),
 	},
 
 	data() {
