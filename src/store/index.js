@@ -1,12 +1,10 @@
 import Vue from "vue"
-import Vuex from "vuex"
+import { createStore } from "vuex"
 import router from "@/router"
 
 const { ipcRenderer } = require("electron")
 
-Vue.use(Vuex)
-
-export default new Vuex.Store({
+export default createStore({
 	state: {
 		app: {
 			wallpaper: "",
@@ -42,7 +40,29 @@ export default new Vuex.Store({
 			userMenu: false,
 		},
 	},
-	mutations: {},
+
+	mutations: {
+		SET_APP(state, app) {
+			state.app = app
+		},
+
+		SET_LOADING(state, loading) {
+			state.loading = loading
+		},
+
+		SET_DOWNLOADER(state, downloader) {
+			state.downloader = downloader
+		},
+
+		SET_READER(state, reader) {
+			state.reader = reader
+		},
+
+		SET_USERS(state, users) {
+			state.users = users
+		},
+	},
+
 	actions: {
 		setupIpc() {
 			//App Events

@@ -1,6 +1,5 @@
 // src/plugins/vex.js
 
-import Vue from "vue"
 import vex from "vex-js"
 import vexDialog from "vex-dialog"
 
@@ -14,7 +13,14 @@ import "vex-js/dist/css/vex-theme-os.css"
 // Options
 vex.defaultOptions.className = "vex-theme-default"
 
-// Register vex-dialog
-vex.registerPlugin(vexDialog)
+const Vex = {
+	install(app, options) {
+		if (!options) {
+			options = {}
+		}
 
-Vue.prototype.$vex = vex
+		vex.registerPlugin(vexDialog)
+		app.config.globalProperties.$vex = vex
+	},
+}
+export default Vex

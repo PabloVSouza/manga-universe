@@ -72,6 +72,7 @@ import path from "path"
 const { ipcRenderer } = require("electron")
 
 export default {
+	name: "Detail",
 	computed: {
 		...mapState(["downloader", "reader", "app"]),
 

@@ -8,9 +8,9 @@
 		></div>
 		<div class="content">
 			<transition name="fade">
-				<div id="loading" v-if="loading.active">
+				<div id="loading" v-if="store.state.loading.active">
 					<div>
-						<h1>{{ loading.loadingMessage }}</h1>
+						<h1>{{ store.state.loading.loadingMessage }}</h1>
 					</div>
 				</div>
 			</transition>
@@ -20,22 +20,25 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex"
+import { useStore } from "vuex"
+import { computed } from "vue"
+import { ipcRenderer } from "electron"
+
 import path from "path"
 
-const { ipcRenderer } = require("electron")
-
 export default {
-	computed: {
-		...mapState(["loading", "users", "app"]),
-		...mapActions(["setupIpc"]),
+	name: "App",
+	setup() {
+		const store = useStore()
+		store.dispatch("setupIpc")
+		ipcRenderer.send("check_url")
 
-		getWallpaper() {
+		const getWallpaper = computed(() => {
 			let response = ""
-			if (this.app.wallpaper != "") {
+			if (store.state.app.wallpaper != "") {
 				response = `url('file:///${path.join(
-					this.app.Folder,
-					this.app.wallpaper
+					store.state.app.Folder,
+					store.state.app.wallpaper
 				)}')`
 				response = response.replace(/\\/g, "/")
 			} else {
@@ -43,11 +46,12 @@ export default {
 			}
 
 			return response
-		},
-	},
-	created() {
-		this.$store.dispatch("setupIpc")
-		ipcRenderer.send("check_url")
+		})
+
+		return {
+			getWallpaper,
+			store,
+		}
 	},
 }
 </script>

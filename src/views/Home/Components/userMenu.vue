@@ -16,6 +16,8 @@ import { mapState } from "vuex"
 const { ipcRenderer } = require("electron")
 
 export default {
+	name: "userMenu",
+
 	computed: {
 		...mapState(["users"]),
 		reverseButton() {
@@ -49,7 +51,7 @@ export default {
 		},
 	},
 
-	beforeDestroy() {
+	beforeUnmount() {
 		window.removeEventListener("click", this.handleClick)
 	},
 

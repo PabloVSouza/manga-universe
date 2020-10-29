@@ -24,6 +24,8 @@
 <script>
 import { mapState } from "vuex"
 export default {
+	name: "topMenu",
+
 	computed: {
 		...mapState(["users"]),
 

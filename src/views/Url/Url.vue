@@ -21,6 +21,7 @@ const crypto = require("crypto-js")
 const { ipcRenderer } = require("electron")
 
 export default {
+	name: "Url",
 	data() {
 		return {
 			txtUrl: "",

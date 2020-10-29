@@ -22,6 +22,8 @@ import path from "path"
 import { mapState } from "vuex"
 
 export default {
+	name: "Reader",
+
 	data() {
 		return {
 			currentPage: 0,
@@ -75,7 +77,7 @@ export default {
 		this.zoomWindow = document.getElementById("zoomWindow")
 	},
 
-	beforeDestroy() {
+	beforeUnmount() {
 		window.removeEventListener("keydown", this.handleKeys)
 	},
 

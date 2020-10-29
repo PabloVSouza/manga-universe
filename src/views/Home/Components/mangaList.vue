@@ -25,6 +25,8 @@ import path from "path"
 const { ipcRenderer } = require("electron")
 
 export default {
+	name: "mangaList",
+
 	computed: {
 		...mapState(["reader", "app"]),
 	},

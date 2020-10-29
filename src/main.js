@@ -1,14 +1,13 @@
-import Vue from "vue"
+import { createApp } from "vue"
 import App from "./App.vue"
 import router from "./router"
 import store from "./store"
-import "./plugins/vex"
-import "./lang"
+import vex from "./plugins/vex"
+import lang from "./lang"
 
-Vue.config.productionTip = false
-
-new Vue({
-	router,
-	store,
-	render: (h) => h(App),
-}).$mount("#app")
+createApp(App)
+	.use(router)
+	.use(store)
+	.use(vex)
+	.use(lang)
+	.mount("#app")

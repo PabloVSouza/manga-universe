@@ -30,6 +30,7 @@ import { mapState } from "vuex"
 const { ipcRenderer } = require("electron")
 
 export default {
+	name: "CreateUser",
 	props: ["editUser"],
 
 	data() {

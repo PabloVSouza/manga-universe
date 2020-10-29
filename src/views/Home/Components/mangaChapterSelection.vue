@@ -84,6 +84,7 @@ import path from "path"
 import { mapState } from "vuex"
 
 export default {
+	name: "mangaChapterSelection",
 	computed: {
 		...mapState(["reader", "users", "app"]),
 		coverDirectory() {
