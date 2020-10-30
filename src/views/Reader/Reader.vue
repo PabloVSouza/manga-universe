@@ -129,12 +129,14 @@ export default {
 			if (this.reader.activeManga._id != undefined) {
 				const filterFolderName = this.reader.activeManga.name.replace(":", "-")
 
-				directory = `url('file:///${path.join(
-					this.app.Folder,
-					"mangas",
-					filterFolderName,
-					String(this.reader.activeChapter.number),
-					this.reader.activeChapter.pages[this.currentPage]
+				directory = `url('file:///${encodeURI(
+					path.join(
+						this.app.Folder,
+						"mangas",
+						filterFolderName,
+						String(this.reader.activeChapter.number),
+						this.reader.activeChapter.pages[this.currentPage]
+					)
 				)}')`
 			}
 			directory = directory.replace(/\\/g, "/")
