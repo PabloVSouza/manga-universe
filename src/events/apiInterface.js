@@ -26,6 +26,7 @@ const eventList = () => {
 	})
 
 	ipcMain.on("download_queue", async (event, mangaData, queue) => {
+		console.log(mangaData)
 		for (const chapter of queue) {
 			await mangaApi.downloadChapter(mangaData, chapter)
 		}
