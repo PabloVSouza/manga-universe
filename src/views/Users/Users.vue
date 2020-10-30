@@ -45,23 +45,30 @@ import CreateUser from "./Components/CreateUser"
 
 import { reactive, computed } from "vue"
 import { useStore } from "vuex"
-import { useRoute } from "vue-router"
+import { useRouter } from "vue-router"
 import { ipcRenderer } from "electron"
-
-let vex = {}
+import vex from "@/plugins/vex"
 
 export default {
 	name: "Users",
+
 	components: { CreateUser },
 
 	created() {
 		ipcRenderer.send("change_window_title", `| Usuários`)
-		vex = this.$vex
+	},
+
+	watch: {
+		createUser(val) {
+			if (!val) {
+				this.state.userEdit = {}
+			}
+		},
 	},
 
 	setup() {
 		const store = useStore()
-		const route = useRoute()
+		const router = useRouter()
 
 		const state = reactive({
 			users: store.state.users,
@@ -76,7 +83,7 @@ export default {
 			state.users.activeUser = user
 			store.dispatch("getProgress")
 
-			route.push("/")
+			router.push("/")
 		}
 
 		const editUser = (user) => {
@@ -89,7 +96,7 @@ export default {
 				message: `Seu progresso de leitura será perdido, deseja mesmo apagar o usuário ${user.name}? `,
 				callback: (res) => {
 					if (res) {
-						ipcRenderer.send("remove_user", user)
+						ipcRenderer.send("remove_user", JSON.parse(JSON.stringify(user)))
 					}
 				},
 			})
@@ -102,14 +109,6 @@ export default {
 			editUser,
 			deleteUser,
 		}
-	},
-
-	watch: {
-		createUser(val) {
-			if (!val) {
-				this.state.userEdit = {}
-			}
-		},
 	},
 }
 </script>

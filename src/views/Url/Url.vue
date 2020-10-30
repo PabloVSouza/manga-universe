@@ -5,7 +5,7 @@
 		</h1>
 
 		<div id="formArea">
-			<input type="text" v-model="txtUrl" placeholder="Url" />
+			<input type="text" v-model="state.txtUrl" placeholder="Url" />
 		</div>
 
 		<div id="buttonArea">
@@ -19,24 +19,26 @@
 <script>
 const crypto = require("crypto-js")
 const { ipcRenderer } = require("electron")
+const { reactive } = require("vue")
 
 export default {
 	name: "Url",
-	data() {
-		return {
+
+	setup() {
+		const state = reactive({
 			txtUrl: "",
 			hashSite: "78085432a8a6d275813f122c6c88c416",
-		}
-	},
+		})
 
-	methods: {
-		registerUrl() {
+		const registerUrl = () => {
 			if (crypto.MD5(this.txtUrl) == this.hashSite) {
 				ipcRenderer.send("write_url", this.txtUrl)
 			} else {
 				this.$vex.dialog.alert("Endereço inválido")
 			}
-		},
+		}
+
+		return { state, registerUrl }
 	},
 }
 </script>

@@ -13,14 +13,5 @@ import "vex-js/dist/css/vex-theme-os.css"
 // Options
 vex.defaultOptions.className = "vex-theme-default"
 
-const Vex = {
-	install(app, options) {
-		if (!options) {
-			options = {}
-		}
-
-		vex.registerPlugin(vexDialog)
-		app.config.globalProperties.$vex = vex
-	},
-}
-export default Vex
+vex.registerPlugin(vexDialog)
+export default vex

@@ -11,7 +11,7 @@
 		<div id="buttonGroupRight">
 			<button
 				id="btnUser"
-				@click.prevent="users.userMenu = !users.userMenu"
+				@click.prevent="state.users.userMenu = !state.users.userMenu"
 				:style="styleBtn"
 				:title="$lang.Home.topMenu.titleUserMenu"
 			>
@@ -22,20 +22,31 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { useStore } from "vuex"
+import { reactive, computed } from "vue"
+
 export default {
 	name: "topMenu",
 
-	computed: {
-		...mapState(["users"]),
+	setup() {
+		const store = useStore()
 
-		styleBtn() {
+		const state = reactive({
+			users: store.state.users,
+		})
+
+		const styleBtn = computed(() => {
 			let style = {}
-			if (this.users.userMenu) {
+			if (state.users.userMenu) {
 				style.backgroundColor = "rgba(255,255,255,0.3)"
 			}
 			return style
-		},
+		})
+
+		return {
+			state,
+			styleBtn,
+		}
 	},
 }
 </script>

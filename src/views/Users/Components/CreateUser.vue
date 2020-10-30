@@ -5,7 +5,7 @@
 			<input
 				type="text"
 				:placeholder="$lang.Users.CreateUser.textPlaceHolder"
-				v-model="user.name"
+				v-model="state.user.name"
 			/>
 		</div>
 		<div id="buttonArea">
@@ -26,46 +26,52 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { useStore } from "vuex"
+import { reactive } from "vue"
 const { ipcRenderer } = require("electron")
 
 export default {
 	name: "CreateUser",
 	props: ["editUser"],
 
-	data() {
-		return {
+	created() {
+		if (this.editUser.name != undefined) {
+			this.state.user = this.editUser
+		}
+	},
+
+	setup(props) {
+		const store = useStore()
+
+		const state = reactive({
 			user: {
 				name: "",
 				reverse: true,
 			},
+			users: store.state.users,
+		})
+
+		const closeForm = () => {
+			state.users.createUser = false
 		}
-	},
 
-	computed: {
-		...mapState(["users"]),
-	},
-
-	created() {
-		if (this.editUser.name != undefined) {
-			this.user = this.editUser
-		}
-	},
-
-	methods: {
-		closeForm() {
-			this.users.createUser = false
-		},
-
-		registerUser() {
-			if (this.user.name != "") {
-				if (this.editUser._id == undefined) {
-					ipcRenderer.send("create_user", this.user)
+		const registerUser = () => {
+			if (state.user.name != "") {
+				if (props.editUser._id == undefined) {
+					ipcRenderer.send(
+						"create_user",
+						JSON.parse(JSON.stringify(state.user))
+					)
 				} else {
-					ipcRenderer.send("update_user", this.user)
+					ipcRenderer.send(
+						"update_user",
+						JSON.parse(JSON.stringify(state.user))
+					)
 				}
 			}
-		},
+		}
+
+		return { state, closeForm, registerUser }
 	},
 }
 </script>

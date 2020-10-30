@@ -16,7 +16,8 @@ import topMenu from "./Components/topMenu"
 import mangaList from "./Components/mangaList"
 import mangaChapterSelection from "./Components/mangaChapterSelection"
 import userMenu from "./Components/userMenu"
-import { mapState } from "vuex"
+import { reactive } from "vue"
+import { useStore } from "vuex"
 import { ipcRenderer } from "electron"
 
 export default {
@@ -36,14 +37,16 @@ export default {
 		ipcRenderer.send("change_window_title", ``)
 	},
 
-	computed: {
-		...mapState(["reader", "users"]),
-	},
+	setup() {
+		const store = useStore()
 
-	data() {
-		return {
+		const state = reactive({
 			showDownloader: false,
-		}
+			reader: store.state.reader,
+			users: store.state.users,
+		})
+
+		return state
 	},
 }
 </script>

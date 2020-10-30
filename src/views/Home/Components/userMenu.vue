@@ -1,10 +1,10 @@
 <template>
 	<div id="userMenu">
-		<h1>{{ users.activeUser.name }}</h1>
+		<h1>{{ state.users.activeUser.name }}</h1>
 		<ul>
 			<li>
 				{{ $lang.Home.userMenu.btnReverseKeys }}:
-				<input type="checkbox" v-model="users.activeUser.reverse" />
+				<input type="checkbox" v-model="state.users.activeUser.reverse" />
 			</li>
 			<li @click="changeUser()">{{ $lang.Home.userMenu.btnChangeUser }}</li>
 		</ul>
@@ -12,43 +12,15 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
+import { useStore } from "vuex"
+import { reactive } from "vue"
 const { ipcRenderer } = require("electron")
 
 export default {
 	name: "userMenu",
 
-	computed: {
-		...mapState(["users"]),
-		reverseButton() {
-			return this.users.activeUser.reverse
-		},
-	},
-
 	created() {
 		window.addEventListener("click", this.handleClick)
-	},
-
-	methods: {
-		changeUser() {
-			this.users.activeUser = {}
-			this.users.userMenu = false
-			this.$router.push("/users")
-		},
-
-		handleClick(e) {
-			if (
-				document.getElementById("userMenu").contains(e.target) ||
-				document.getElementById("btnUser").contains(e.target)
-			) {
-				//Não faz nada
-			} else {
-				this.users.userMenu = false
-			}
-		},
-		updateUser() {
-			ipcRenderer.send("update_user", this.users.activeUser)
-		},
 	},
 
 	beforeUnmount() {
@@ -59,6 +31,43 @@ export default {
 		reverseButton() {
 			this.updateUser()
 		},
+	},
+
+	setup() {
+		const store = useStore()
+
+		const state = reactive({
+			users: store.state.users,
+			reverseButton: store.state.users.activeUser.reverse,
+		})
+
+		const changeUser = () => {
+			this.users.activeUser = {}
+			this.users.userMenu = false
+			this.$router.push("/users")
+		}
+
+		const handleClick = (e) => {
+			if (
+				document.getElementById("userMenu").contains(e.target) ||
+				document.getElementById("btnUser").contains(e.target)
+			) {
+				//Não faz nada
+			} else {
+				this.users.userMenu = false
+			}
+		}
+
+		const updateUser = () => {
+			ipcRenderer.send("update_user", this.users.activeUser)
+		}
+
+		return {
+			state,
+			changeUser,
+			handleClick,
+			updateUser,
+		}
 	},
 }
 </script>
