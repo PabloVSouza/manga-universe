@@ -5,9 +5,9 @@
 		</button>
 		<transition name="fade">
 			<Detail
-				v-if="downloader.detail"
+				v-if="state.downloader.detail"
 				@close-detail="closeDetail()"
-				:downloadMore="downloadMore"
+				:downloadMore="state.downloadMore"
 			/>
 		</transition>
 
@@ -15,14 +15,14 @@
 			<input
 				type="text"
 				:placeholder="$lang.Downloader.textPlaceholder"
-				v-model="searchTerms"
-				@input="isTyping = true"
+				v-model="state.searchTerms"
+				@input="state.isTyping = true"
 			/>
 		</div>
 		<div id="searchResult">
 			<div
 				class="manga"
-				v-for="(manga, key) in downloader.mangaList"
+				v-for="(manga, key) in state.downloader.mangaList"
 				:key="key"
 				@click="getManga(manga)"
 			>
@@ -38,65 +38,72 @@
 </template>
 
 <script>
-import Detail from "./Components/Detail"
 import _ from "lodash"
-import { mapActions, mapState } from "vuex"
 const { ipcRenderer } = require("electron")
+import Detail from "./Components/Detail"
+import { useStore } from "vuex"
+import { useRoute, useRouter } from "vue-router"
+import { reactive, watch } from "vue"
 
 export default {
 	name: "Downloader",
 	components: { Detail },
 
-	data() {
-		return {
+	setup() {
+		const store = useStore()
+		const route = useRoute()
+		const router = useRouter()
+
+		const state = reactive({
 			searchTerms: "",
 			mangaDetail: false,
 			isTyping: false,
+			downloader: store.state.downloader,
+			downloadMore: route.params.downloadMore,
+		})
+
+		const searchMangas = () => {
+			if (state.searchTerms.trim().length > 0) {
+				ipcRenderer.send("search_manga", state.searchTerms)
+			}
 		}
-	},
 
-	computed: {
-		...mapState(["downloader"]),
-		...mapActions(["getMangaDetail"]),
-		downloadMore() {
-			return this.$route.params.downloadMore
-		},
-	},
+		const getManga = (manga) => {
+			state.downloader.activeManga = JSON.parse(JSON.stringify(manga))
+			store.dispatch("getMangaDetail")
+		}
 
-	methods: {
-		searchMangas() {
-			if (this.searchTerms.trim().length > 0) {
-				ipcRenderer.send("search_manga", this.searchTerms)
-			}
-		},
-
-		getManga(manga) {
-			this.$store.state.downloader.activeManga = JSON.parse(
-				JSON.stringify(manga)
-			)
-			this.$store.dispatch("getMangaDetail")
-		},
-
-		closeDetail() {
-			if (this.downloadMore) {
-				this.downloader.detail = false
-				this.$router.push("/")
+		const closeDetail = () => {
+			if (state.downloadMore) {
+				state.downloader.detail = false
+				router.push("/")
 			} else {
-				this.downloader.detail = false
+				state.downloader.detail = false
 			}
-		},
-	},
+		}
 
-	watch: {
-		searchTerms: _.debounce(function() {
-			this.isTyping = false
-		}, 1000),
+		watch(
+			() => state.searchTerms,
+			_.debounce(() => {
+				state.isTyping = false
+			}, 1000)
+		)
 
-		isTyping(value) {
-			if (!value) {
-				this.searchMangas()
+		watch(
+			() => state.isTyping,
+			(value) => {
+				if (!value) {
+					searchMangas()
+				}
 			}
-		},
+		)
+
+		return {
+			state,
+			searchMangas,
+			getManga,
+			closeDetail,
+		}
 	},
 }
 </script>

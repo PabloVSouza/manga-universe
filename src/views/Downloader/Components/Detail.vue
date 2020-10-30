@@ -34,7 +34,7 @@
 			</p>
 		</div>
 		<div id="menuChapters">
-			{{ downloader.downloadQueue.length }}
+			{{ state.downloader.downloadQueue.length }}
 			{{ $lang.Downloader.Detail.downloadQueue }}.
 			<button
 				@click.prevent="downloadFromQueue"
@@ -50,7 +50,7 @@
 			<h3>{{ $lang.Downloader.Detail.chapters }}:</h3>
 			<ul>
 				<li
-					v-for="(chapter, key) in downloader.chapterList"
+					v-for="(chapter, key) in state.downloader.chapterList"
 					:key="key"
 					@click="downloadChapter(chapter)"
 					:style="[
@@ -66,33 +66,13 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
 import path from "path"
-
 const { ipcRenderer } = require("electron")
+import { useStore } from "vuex"
+import { reactive, computed, watch } from "vue"
 
 export default {
 	name: "Detail",
-	computed: {
-		...mapState(["downloader", "reader", "app"]),
-
-		mangaInfo() {
-			if (this.downloadMore) {
-				let objReturn = JSON.parse(JSON.stringify(this.reader.activeManga))
-
-				objReturn.categories = objReturn.genres
-
-				objReturn.cover = this.coverDirectory(objReturn)
-				return objReturn
-			} else {
-				return this.downloader.activeManga
-			}
-		},
-
-		mangaList() {
-			return this.reader.mangaList
-		},
-	},
 
 	props: ["downloadMore"],
 
@@ -100,48 +80,70 @@ export default {
 		this.activateManga()
 	},
 
-	methods: {
-		activateManga() {
-			let findManga = this.reader.mangaList.find(
-				(manga) => manga.id_site == this.downloader.activeManga.id_serie
+	setup(props) {
+		const store = useStore()
+
+		const state = reactive({
+			downloader: store.state.downloader,
+			reader: store.state.reader,
+			app: store.state.app,
+			mangaList: store.state.reader.mangaList,
+		})
+
+		const mangaInfo = computed(() => {
+			if (props.downloadMore) {
+				let objReturn = JSON.parse(JSON.stringify(state.reader.activeManga))
+
+				objReturn.categories = objReturn.genres
+
+				objReturn.cover = coverDirectory(objReturn)
+				return objReturn
+			} else {
+				return state.downloader.activeManga
+			}
+		})
+
+		const activateManga = () => {
+			let findManga = state.reader.mangaList.find(
+				(manga) => manga.id_site == state.downloader.activeManga.id_serie
 			)
 			if (findManga) {
-				this.reader.activeManga = findManga
+				state.reader.activeManga = findManga
 
-				ipcRenderer.send("get_available_chapters", this.reader.activeManga._id)
+				ipcRenderer.send("get_available_chapters", state.reader.activeManga._id)
 			}
-		},
+		}
 
-		coverDirectory(manga) {
+		const coverDirectory = (manga) => {
 			const filterFolderName = manga.name.replace(":", "-")
 
 			const directory = `file:///${path.join(
-				this.app.Folder,
+				state.app.Folder,
 				"mangas",
 				filterFolderName,
 				manga.cover
 			)}`
 
 			return directory
-		},
+		}
 
-		downloadChapter(chapter) {
-			if (!this.alreadyDownloaded(chapter)) {
-				this.downloader.downloadQueue.push(JSON.parse(JSON.stringify(chapter)))
+		const downloadChapter = (chapter) => {
+			if (!alreadyDownloaded(chapter)) {
+				state.downloader.downloadQueue.push(JSON.parse(JSON.stringify(chapter)))
 			}
-		},
+		}
 
-		downloadFromQueue() {
+		const downloadFromQueue = () => {
 			ipcRenderer.send(
 				"download_queue",
-				this.mangaInfo,
-				this.downloader.downloadQueue
+				JSON.parse(JSON.stringify(mangaInfo)),
+				JSON.parse(JSON.stringify(state.downloader.downloadQueue))
 			)
-		},
+		}
 
-		alreadyDownloaded(chapter) {
+		const alreadyDownloaded = (chapter) => {
 			let res = false
-			const downloadedChapter = this.reader.chapterList.find(
+			const downloadedChapter = state.reader.chapterList.find(
 				(ch) => ch.id_site == chapter.id_chapter
 			)
 
@@ -150,12 +152,12 @@ export default {
 			}
 
 			return res
-		},
+		}
 
-		onQueue(chapter) {
+		const onQueue = (chapter) => {
 			let res = false
 
-			const on = this.downloader.downloadQueue.find(
+			const on = state.downloader.downloadQueue.find(
 				(dq) => dq.id_chapter == chapter.id_chapter
 			)
 
@@ -164,25 +166,38 @@ export default {
 			}
 
 			return res
-		},
+		}
 
-		markAll() {
-			if (this.downloader.downloadQueue.length > 0) {
-				this.downloader.downloadQueue = []
+		const markAll = () => {
+			if (state.downloader.downloadQueue.length > 0) {
+				state.downloader.downloadQueue = []
 			} else {
-				for (const ch of this.downloader.chapterList) {
-					if (!this.alreadyDownloaded(ch)) {
-						this.downloader.downloadQueue.push(JSON.parse(JSON.stringify(ch)))
+				for (const ch of state.downloader.chapterList) {
+					if (!alreadyDownloaded(ch)) {
+						state.downloader.downloadQueue.push(JSON.parse(JSON.stringify(ch)))
 					}
 				}
 			}
-		},
-	},
+		}
 
-	watch: {
-		mangaList() {
-			this.activateManga()
-		},
+		watch(
+			() => state.mangaList,
+			() => {
+				activateManga()
+			}
+		)
+
+		return {
+			state,
+			mangaInfo,
+			activateManga,
+			coverDirectory,
+			downloadChapter,
+			downloadFromQueue,
+			alreadyDownloaded,
+			onQueue,
+			markAll,
+		}
 	},
 }
 </script>

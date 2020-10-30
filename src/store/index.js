@@ -1,4 +1,4 @@
-import Vue from "vue"
+import vex from "@/plugins/vex"
 import { createStore } from "vuex"
 import router from "@/router"
 
@@ -89,7 +89,7 @@ export default createStore({
 				this.state.loading.active = false
 				this.state.loading.loadingMessage = ""
 				this.state.downloader.downloadQueue = []
-				Vue.prototype.$vex.dialog.alert({
+				vex.dialog.alert({
 					message: "Ocorreu um erro de conexão",
 				})
 			})
@@ -190,7 +190,7 @@ export default createStore({
 			if (!param) {
 				ipcRenderer.send(
 					"get_manga_description",
-					this.state.downloader.activeManga
+					JSON.parse(JSON.stringify(this.state.downloader.activeManga))
 				)
 			} else {
 				ipcRenderer.send("get_chapters", this.state.reader.activeManga.id_site)

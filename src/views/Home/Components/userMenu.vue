@@ -54,7 +54,7 @@ export default {
 			) {
 				//Não faz nada
 			} else {
-				this.users.userMenu = false
+				state.users.userMenu = false
 			}
 		}
 
