@@ -1,7 +1,6 @@
 "use strict"
 
 import { app, protocol, BrowserWindow } from "electron"
-import path from "path"
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib"
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer"
 import eventList from "@/events/eventList"
@@ -26,7 +25,6 @@ function createWindow() {
 		minWidth: 600,
 		minHeight: 600,
 		title: "Manga Universe",
-		icon: path.join("src", "assets", "icon.png"),
 
 		webPreferences: {
 			webSecurity: false,
