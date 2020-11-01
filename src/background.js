@@ -1,7 +1,6 @@
 "use strict"
 
 import { app, protocol, BrowserWindow } from "electron"
-import path from "path"
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib"
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer"
 import eventList from "@/events/eventList"
