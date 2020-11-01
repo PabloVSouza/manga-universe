@@ -1,12 +1,5 @@
 <template>
 	<div id="Detail">
-		<button
-			class="closeButton"
-			id="closeDetail"
-			@click.prevent="$emit('close-detail')"
-		>
-			X
-		</button>
 		<div id="cover">
 			<img :src="mangaInfo.cover" :alt="mangaInfo.name" />
 		</div>
@@ -54,8 +47,10 @@
 					:key="key"
 					@click="downloadChapter(chapter)"
 					:style="[
-						alreadyDownloaded(chapter) ? { backgroundColor: 'green' } : {},
-						onQueue(chapter) ? { backgroundColor: 'rgb(150,150,30)' } : {},
+						alreadyDownloaded(chapter)
+							? { backgroundColor: 'rgb(80,150,30)' }
+							: {},
+						onQueue(chapter) ? { backgroundColor: 'rgb(219, 208, 56)' } : {},
 					]"
 				>
 					{{ chapter.number }}
@@ -66,23 +61,20 @@
 </template>
 
 <script>
-import path from "path"
 const { ipcRenderer } = require("electron")
+
 import { useStore } from "vuex"
 import { reactive, computed, watch } from "vue"
+
+import path from "path"
 
 export default {
 	name: "Detail",
 
 	props: ["downloadMore"],
 
-	created() {
-		this.activateManga()
-	},
-
 	setup(props) {
 		const store = useStore()
-
 		const state = reactive({
 			downloader: store.state.downloader,
 			reader: store.state.reader,
@@ -117,11 +109,8 @@ export default {
 		const coverDirectory = (manga) => {
 			const filterFolderName = manga.name.replace(":", "-")
 
-			const directory = `file:///${path.join(
-				state.app.Folder,
-				"mangas",
-				filterFolderName,
-				manga.cover
+			const directory = `file:///${encodeURI(
+				path.join(state.app.Folder, "mangas", filterFolderName, manga.cover)
 			)}`
 
 			return directory
@@ -129,14 +118,24 @@ export default {
 
 		const downloadChapter = (chapter) => {
 			if (!alreadyDownloaded(chapter)) {
-				state.downloader.downloadQueue.push(JSON.parse(JSON.stringify(chapter)))
+				const findInQueue = state.downloader.downloadQueue.findIndex(
+					(row) => row.id_chapter == chapter.id_chapter
+				)
+
+				if (findInQueue < 0) {
+					state.downloader.downloadQueue.push(
+						JSON.parse(JSON.stringify(chapter))
+					)
+				} else {
+					state.downloader.downloadQueue.splice(findInQueue, 1)
+				}
 			}
 		}
 
 		const downloadFromQueue = () => {
 			ipcRenderer.send(
 				"download_queue",
-				JSON.parse(JSON.stringify(mangaInfo)),
+				mangaInfo.value,
 				JSON.parse(JSON.stringify(state.downloader.downloadQueue))
 			)
 		}
@@ -180,6 +179,8 @@ export default {
 			}
 		}
 
+		activateManga()
+
 		watch(
 			() => state.mangaList,
 			() => {
@@ -190,8 +191,6 @@ export default {
 		return {
 			state,
 			mangaInfo,
-			activateManga,
-			coverDirectory,
 			downloadChapter,
 			downloadFromQueue,
 			alreadyDownloaded,
@@ -203,20 +202,10 @@ export default {
 </script>
 
 <style lang="scss">
-#closeDetail {
-	&:hover {
-		background-color: rgba(200, 200, 200, 1) !important;
-	}
-}
-
 #Detail {
 	position: absolute;
-	height: 100%;
-	width: 100%;
-	top: 0;
-	left: 0;
-	border-radius: 5px;
-	background-color: rgba(255, 255, 255, 0.9);
+	width: calc(100% - 90px);
+	height: calc(100% - 90px);
 	padding: 10px;
 	overflow: auto;
 	display: flex;

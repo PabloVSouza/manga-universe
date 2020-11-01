@@ -12,29 +12,18 @@
 </template>
 
 <script>
-import { useStore } from "vuex"
-import { reactive } from "vue"
 const { ipcRenderer } = require("electron")
+
+import { reactive, watch, onMounted, onBeforeUnmount } from "vue"
+import { useStore } from "vuex"
+import { useRouter } from "vue-router"
 
 export default {
 	name: "userMenu",
 
-	created() {
-		window.addEventListener("click", this.handleClick)
-	},
-
-	beforeUnmount() {
-		window.removeEventListener("click", this.handleClick)
-	},
-
-	watch: {
-		reverseButton() {
-			this.updateUser()
-		},
-	},
-
 	setup() {
 		const store = useStore()
+		const router = useRouter()
 
 		const state = reactive({
 			users: store.state.users,
@@ -42,9 +31,9 @@ export default {
 		})
 
 		const changeUser = () => {
-			this.users.activeUser = {}
-			this.users.userMenu = false
-			this.$router.push("/users")
+			state.users.activeUser = {}
+			state.users.userMenu = false
+			router.push("/users")
 		}
 
 		const handleClick = (e) => {
@@ -62,10 +51,24 @@ export default {
 			ipcRenderer.send("update_user", this.users.activeUser)
 		}
 
+		watch(
+			() => state.reverseButton,
+			() => {
+				updateUser()
+			}
+		)
+
+		onMounted(() => {
+			window.addEventListener("click", handleClick)
+		})
+
+		onBeforeUnmount(() => {
+			window.removeEventListener("click", handleClick)
+		})
+
 		return {
 			state,
 			changeUser,
-			handleClick,
 			updateUser,
 		}
 	},

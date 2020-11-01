@@ -1,5 +1,5 @@
 <template>
-	<div id="Url">
+	<div id="Url" class="generalWindow">
 		<h1>
 			Digite o endereço do site
 		</h1>
@@ -17,9 +17,12 @@
 </template>
 
 <script>
-const crypto = require("crypto-js")
 const { ipcRenderer } = require("electron")
+
 const { reactive } = require("vue")
+
+const crypto = require("crypto-js")
+import vex from "@/plugins/vex"
 
 export default {
 	name: "Url",
@@ -31,10 +34,10 @@ export default {
 		})
 
 		const registerUrl = () => {
-			if (crypto.MD5(this.txtUrl) == this.hashSite) {
-				ipcRenderer.send("write_url", this.txtUrl)
+			if (crypto.MD5(state.txtUrl) == state.hashSite) {
+				ipcRenderer.send("write_url", state.txtUrl)
 			} else {
-				this.$vex.dialog.alert("Endereço inválido")
+				vex.dialog.alert("Endereço inválido")
 			}
 		}
 
@@ -45,13 +48,7 @@ export default {
 
 <style lang="scss">
 #Url {
-	background-color: rgba(255, 255, 255, 0.3);
-	width: 90%;
-	height: 300px;
-	border-radius: 5px;
-	overflow: hidden;
-	margin: 0 auto;
-	box-shadow: 3px 7px 16px -5px rgba(0, 0, 0, 0.75);
+	height: 300px !important;
 
 	h1 {
 		text-align: center;

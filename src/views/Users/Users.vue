@@ -1,5 +1,5 @@
 <template>
-	<div id="Users">
+	<div id="Users" class="generalWindow">
 		<CreateUser v-if="state.users.createUser" :editUser="state.userEdit" />
 		<template v-if="!state.users.createUser">
 			<h1>{{ $lang.Users.headerText }}</h1>
@@ -41,12 +41,14 @@
 </template>
 
 <script>
+import { ipcRenderer } from "electron"
+
 import CreateUser from "./Components/CreateUser"
 
-import { reactive, computed } from "vue"
+import { reactive, computed, watch } from "vue"
 import { useStore } from "vuex"
 import { useRouter } from "vue-router"
-import { ipcRenderer } from "electron"
+
 import vex from "@/plugins/vex"
 
 export default {
@@ -54,22 +56,9 @@ export default {
 
 	components: { CreateUser },
 
-	created() {
-		ipcRenderer.send("change_window_title", `| Usuários`)
-	},
-
-	watch: {
-		createUser(val) {
-			if (!val) {
-				this.state.userEdit = {}
-			}
-		},
-	},
-
 	setup() {
 		const store = useStore()
 		const router = useRouter()
-
 		const state = reactive({
 			users: store.state.users,
 			userEdit: {},
@@ -102,6 +91,17 @@ export default {
 			})
 		}
 
+		watch(
+			() => createUser.value,
+			(val) => {
+				if (!val) {
+					state.userEdit = {}
+				}
+			}
+		)
+
+		ipcRenderer.send("change_window_title", `| Usuários`)
+
 		return {
 			state,
 			createUser,
@@ -115,13 +115,8 @@ export default {
 
 <style lang="scss">
 #Users {
-	background-color: rgba(255, 255, 255, 0.3);
-	width: 90%;
-	height: 300px;
-	border-radius: 5px;
-	overflow: hidden;
-	margin: 0 auto;
-	box-shadow: 3px 7px 16px -5px rgba(0, 0, 0, 0.75);
+	min-height: 300px;
+	height: 40% !important;
 
 	h1 {
 		text-align: center;

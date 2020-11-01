@@ -13,10 +13,10 @@ export default createStore({
 		},
 		loading: {
 			active: false,
-			loadingMessage: "",
-			progressBar: {
+			message: "",
+			progress: {
 				current: 0,
-				total: 0,
+				total: 10,
 			},
 		},
 		downloader: {
@@ -87,7 +87,7 @@ export default createStore({
 
 			ipcRenderer.on("connection_error", () => {
 				this.state.loading.active = false
-				this.state.loading.loadingMessage = ""
+				this.state.loading.message = ""
 				this.state.downloader.downloadQueue = []
 				vex.dialog.alert({
 					message: "Ocorreu um erro de conexão",
@@ -99,7 +99,11 @@ export default createStore({
 			})
 
 			ipcRenderer.on("loading_message", (event, param) => {
-				this.state.loading.loadingMessage = param
+				this.state.loading.message = param
+			})
+
+			ipcRenderer.on("loading_progress", (event, param) => {
+				this.state.loading.progress = JSON.parse(JSON.stringify(param))
 			})
 
 			ipcRenderer.on("change_route", (event, route) => {

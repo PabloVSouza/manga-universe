@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import { useStore } from "vuex"
 import { reactive, computed } from "vue"
+import { useStore } from "vuex"
 
 export default {
 	name: "topMenu",

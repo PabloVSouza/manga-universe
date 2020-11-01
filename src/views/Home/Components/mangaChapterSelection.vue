@@ -24,9 +24,9 @@
 					{{ state.reader.activeManga.description }}
 				</p>
 			</div>
-
 			<img :src="coverDirectory" alt="" />
 		</div>
+
 		<div id="body" class="noSelect">
 			<div id="mangaMenu">
 				<button
@@ -42,6 +42,10 @@
 				>
 					<img src="@/assets/comic-book.svg" alt="book" />
 				</button>
+				<div id="totalProgress">
+					<div id="progress" :style="{ width: `${totalProgress}%` }"></div>
+				</div>
+				<p>{{ totalProgress }}% Lido</p>
 			</div>
 			<div id="chaptersTable">
 				<table>
@@ -78,11 +82,13 @@
 </template>
 
 <script>
-import path from "path"
 const { ipcRenderer } = require("electron")
+
+import { reactive, computed } from "vue"
 import { useStore } from "vuex"
 import { useRouter } from "vue-router"
-import { reactive, computed } from "vue"
+
+import path from "path"
 
 export default {
 	name: "mangaChapterSelection",
@@ -97,17 +103,32 @@ export default {
 			app: store.state.app,
 		})
 
+		const totalProgress = computed(() => {
+			let total = []
+			for (const chapter of state.reader.chapterList) {
+				total.push(chapterProgress(chapter))
+			}
+
+			const totalSum = total.reduce((value, next) => value + next, 0)
+
+			const all = state.reader.chapterList.length * 100
+
+			return Math.round((100 / all) * totalSum)
+		})
+
 		const coverDirectory = computed(() => {
 			let directory = ""
 
 			if (state.reader.activeManga._id != undefined) {
 				const filterFolderName = state.reader.activeManga.name.replace(":", "-")
 
-				directory = `file:///${path.join(
-					state.app.Folder,
-					"mangas",
-					filterFolderName,
-					state.reader.activeManga.cover
+				directory = `file:///${encodeURI(
+					path.join(
+						state.app.Folder,
+						"mangas",
+						filterFolderName,
+						state.reader.activeManga.cover
+					)
 				)}`
 			}
 
@@ -190,6 +211,7 @@ export default {
 			markAsRead,
 			continueReading,
 			downloadMore,
+			totalProgress,
 		}
 	},
 }
@@ -293,6 +315,30 @@ export default {
 			width: 100%;
 			background-color: rgba(255, 255, 255, 0.3);
 			margin-bottom: 1px;
+			position: relative;
+
+			#totalProgress {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				z-index: -1;
+				#progress {
+					height: 100%;
+					background-color: green;
+					transition: width 0.6s ease;
+				}
+			}
+			p {
+				position: absolute;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
 
 			button {
 				height: 50px;

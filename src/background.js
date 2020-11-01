@@ -26,7 +26,6 @@ function createWindow() {
 		minWidth: 600,
 		minHeight: 600,
 		title: "Manga Universe",
-		icon: path.join("src", "assets", "icon.png"),
 
 		webPreferences: {
 			webSecurity: false,

@@ -26,23 +26,17 @@
 </template>
 
 <script>
-import { useStore } from "vuex"
-import { reactive } from "vue"
 const { ipcRenderer } = require("electron")
+
+import { reactive } from "vue"
+import { useStore } from "vuex"
 
 export default {
 	name: "CreateUser",
 	props: ["editUser"],
 
-	created() {
-		if (this.editUser.name != undefined) {
-			this.state.user = this.editUser
-		}
-	},
-
 	setup(props) {
 		const store = useStore()
-
 		const state = reactive({
 			user: {
 				name: "",
@@ -69,6 +63,10 @@ export default {
 					)
 				}
 			}
+		}
+
+		if (props.editUser.name != undefined) {
+			state.user = JSON.parse(JSON.stringify(props.editUser))
 		}
 
 		return { state, closeForm, registerUser }

@@ -20,10 +20,12 @@
 </template>
 
 <script>
-import path from "path"
 import { ipcRenderer } from "electron"
-import { useStore } from "vuex"
+
 import { reactive } from "vue"
+import { useStore } from "vuex"
+
+import path from "path"
 
 export default {
 	name: "mangaList",
@@ -38,11 +40,8 @@ export default {
 		const coverDirectory = (manga) => {
 			const filterFolderName = manga.name.replace(":", "-")
 
-			const directory = `file:///${path.join(
-				state.app.Folder,
-				"mangas",
-				filterFolderName,
-				manga.cover
+			const directory = `file:///${encodeURI(
+				path.join(state.app.Folder, "mangas", filterFolderName, manga.cover)
 			)}`
 
 			return directory

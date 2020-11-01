@@ -1,5 +1,5 @@
 <template>
-	<div id="Home">
+	<div id="Home" class="generalWindow">
 		<topMenu />
 		<template v-if="reader.mangaList.length > 0">
 			<mangaList />
@@ -12,13 +12,16 @@
 </template>
 
 <script>
+import { ipcRenderer } from "electron"
+
 import topMenu from "./Components/topMenu"
 import mangaList from "./Components/mangaList"
 import mangaChapterSelection from "./Components/mangaChapterSelection"
 import userMenu from "./Components/userMenu"
+
 import { reactive } from "vue"
 import { useStore } from "vuex"
-import { ipcRenderer } from "electron"
+import { useRouter } from "vue-router"
 
 export default {
 	name: "Home",
@@ -29,36 +32,24 @@ export default {
 		userMenu,
 	},
 
-	created() {
-		if (this.users.activeUser._id == undefined) {
-			this.$router.push("/users")
-		}
-
-		ipcRenderer.send("change_window_title", ``)
-	},
-
 	setup() {
 		const store = useStore()
-
+		const router = useRouter()
 		const state = reactive({
 			showDownloader: false,
 			reader: store.state.reader,
 			users: store.state.users,
 		})
 
+		if (state.users.activeUser._id == undefined) {
+			router.push("/users")
+		}
+
+		ipcRenderer.send("change_window_title", ``)
+
 		return state
 	},
 }
 </script>
 
-<style lang="scss">
-#Home {
-	width: 100%;
-	height: 100%;
-	background-color: rgba(255, 255, 255, 0.3);
-	border-radius: 5px;
-	box-shadow: 3px 7px 16px -5px rgba(0, 0, 0, 0.75);
-	overflow: hidden;
-	position: relative;
-}
-</style>
+<style lang="scss"></style>

@@ -170,13 +170,9 @@ const getPages = (id_release, disqusKey) => {
 	})
 }
 
-const downloadPage = (chapter, page, dirData) => {
+const downloadPage = (page, dirData) => {
 	return new Promise((resolve) => {
 		let fileName = page.substring(page.lastIndexOf("/") + 1)
-		win.webContents.send(
-			"loading_message",
-			`Baixando capítulo ${chapter.number} - Página ${fileName} `
-		)
 
 		axios({
 			method: "get",
@@ -259,8 +255,18 @@ const downloadChapter = async (mangaData, chapter) => {
 
 	let fileList = []
 
+	win.webContents.send("loading_message", `Baixando capítulo ${chapter.number}`)
+
+	const progress = {
+		total: pages.length,
+		current: 0,
+	}
+
 	for (const page of pages) {
-		let fileName = await downloadPage(chapter, page, dirData)
+		progress.current++
+		let fileName = await downloadPage(page, dirData)
+
+		win.webContents.send("loading_progress", progress)
 
 		if (fileName) {
 			fileList.push(fileName)
@@ -283,6 +289,7 @@ const downloadChapter = async (mangaData, chapter) => {
 	await recordChapter(chapterWriteData)
 	win.webContents.send("finished_download")
 	win.webContents.send("loading_message", "")
+	win.webContents.send("loading_progress", { total: 10, current: 0 })
 	win.webContents.send("loading", false)
 }
 
