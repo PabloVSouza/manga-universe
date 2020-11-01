@@ -79,7 +79,10 @@ export default {
 			downloader: store.state.downloader,
 			reader: store.state.reader,
 			app: store.state.app,
-			mangaList: store.state.reader.mangaList,
+		})
+
+		const mangaList = computed(() => {
+			return store.state.reader.mangaList
 		})
 
 		const mangaInfo = computed(() => {
@@ -96,7 +99,7 @@ export default {
 		})
 
 		const activateManga = () => {
-			let findManga = state.reader.mangaList.find(
+			let findManga = mangaList.value.find(
 				(manga) => manga.id_site == state.downloader.activeManga.id_serie
 			)
 			if (findManga) {
@@ -133,9 +136,10 @@ export default {
 		}
 
 		const downloadFromQueue = () => {
+			const info = JSON.parse(JSON.stringify(mangaInfo.value))
 			ipcRenderer.send(
 				"download_queue",
-				mangaInfo.value,
+				info,
 				JSON.parse(JSON.stringify(state.downloader.downloadQueue))
 			)
 		}
@@ -182,7 +186,7 @@ export default {
 		activateManga()
 
 		watch(
-			() => state.mangaList,
+			() => mangaList.value,
 			() => {
 				activateManga()
 			}
@@ -190,6 +194,7 @@ export default {
 
 		return {
 			state,
+			mangaList,
 			mangaInfo,
 			downloadChapter,
 			downloadFromQueue,
