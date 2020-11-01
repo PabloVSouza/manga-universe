@@ -1,12 +1,10 @@
-import Vue from "vue"
-import Vuex from "vuex"
+import vex from "@/plugins/vex"
+import { createStore } from "vuex"
 import router from "@/router"
 
 const { ipcRenderer } = require("electron")
 
-Vue.use(Vuex)
-
-export default new Vuex.Store({
+export default createStore({
 	state: {
 		app: {
 			wallpaper: "",
@@ -15,10 +13,10 @@ export default new Vuex.Store({
 		},
 		loading: {
 			active: false,
-			loadingMessage: "",
-			progressBar: {
+			message: "",
+			progress: {
 				current: 0,
-				total: 0,
+				total: 10,
 			},
 		},
 		downloader: {
@@ -42,7 +40,29 @@ export default new Vuex.Store({
 			userMenu: false,
 		},
 	},
-	mutations: {},
+
+	mutations: {
+		SET_APP(state, app) {
+			state.app = app
+		},
+
+		SET_LOADING(state, loading) {
+			state.loading = loading
+		},
+
+		SET_DOWNLOADER(state, downloader) {
+			state.downloader = downloader
+		},
+
+		SET_READER(state, reader) {
+			state.reader = reader
+		},
+
+		SET_USERS(state, users) {
+			state.users = users
+		},
+	},
+
 	actions: {
 		setupIpc() {
 			//App Events
@@ -67,9 +87,9 @@ export default new Vuex.Store({
 
 			ipcRenderer.on("connection_error", () => {
 				this.state.loading.active = false
-				this.state.loading.loadingMessage = ""
+				this.state.loading.message = ""
 				this.state.downloader.downloadQueue = []
-				Vue.prototype.$vex.dialog.alert({
+				vex.dialog.alert({
 					message: "Ocorreu um erro de conexão",
 				})
 			})
@@ -79,7 +99,11 @@ export default new Vuex.Store({
 			})
 
 			ipcRenderer.on("loading_message", (event, param) => {
-				this.state.loading.loadingMessage = param
+				this.state.loading.message = param
+			})
+
+			ipcRenderer.on("loading_progress", (event, param) => {
+				this.state.loading.progress = JSON.parse(JSON.stringify(param))
 			})
 
 			ipcRenderer.on("change_route", (event, route) => {
@@ -170,7 +194,7 @@ export default new Vuex.Store({
 			if (!param) {
 				ipcRenderer.send(
 					"get_manga_description",
-					this.state.downloader.activeManga
+					JSON.parse(JSON.stringify(this.state.downloader.activeManga))
 				)
 			} else {
 				ipcRenderer.send("get_chapters", this.state.reader.activeManga.id_site)

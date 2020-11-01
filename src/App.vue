@@ -8,34 +8,58 @@
 		></div>
 		<div class="content">
 			<transition name="fade">
-				<div id="loading" v-if="loading.active">
-					<div>
-						<h1>{{ loading.loadingMessage }}</h1>
+				<div id="loading" v-if="store.state.loading.active">
+					<div
+						id="loadingMessage"
+						v-if="store.state.loading.message.length > 0"
+					>
+						<h1>{{ store.state.loading.message }}</h1>
+						<img src="@/assets/loading.gif" alt="loading" />
+						<div id="progressBar">
+							<p>{{ getProgress }}%</p>
+							<div id="progress" :style="{ width: `${getProgress}%` }"></div>
+						</div>
 					</div>
+					<img
+						v-else
+						src="@/assets/loading.gif"
+						alt="loading"
+						id="loadingImage"
+					/>
 				</div>
 			</transition>
-			<router-view />
+			<router-view v-slot="{ Component }">
+				<transition name="fade">
+					<component :is="Component" />
+				</transition>
+			</router-view>
 		</div>
 	</div>
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex"
+import { ipcRenderer } from "electron"
+
+import { computed } from "vue"
+import { useStore } from "vuex"
+import { useRouter } from "vue-router"
+
 import path from "path"
 
-const { ipcRenderer } = require("electron")
-
 export default {
-	computed: {
-		...mapState(["loading", "users", "app"]),
-		...mapActions(["setupIpc"]),
+	name: "App",
+	setup() {
+		const store = useStore()
+		const router = useRouter()
+		// const route = useRoute()
 
-		getWallpaper() {
+		router.push("/")
+
+		const getWallpaper = computed(() => {
 			let response = ""
-			if (this.app.wallpaper != "") {
-				response = `url('file:///${path.join(
-					this.app.Folder,
-					this.app.wallpaper
+			if (store.state.app.wallpaper != "") {
+				response = `url('file:///${encodeURI(
+					path.join(store.state.app.Folder, store.state.app.wallpaper)
 				)}')`
 				response = response.replace(/\\/g, "/")
 			} else {
@@ -43,17 +67,42 @@ export default {
 			}
 
 			return response
-		},
-	},
-	created() {
-		this.$store.dispatch("setupIpc")
+		})
+
+		const getProgress = computed(() => {
+			const current = store.state.loading.progress.current
+			const total = store.state.loading.progress.total
+
+			const percentage = (100 / total) * current
+
+			return Math.round(percentage)
+		})
+
+		store.dispatch("setupIpc")
 		ipcRenderer.send("check_url")
+
+		return {
+			getWallpaper,
+			store,
+			getProgress,
+		}
 	},
 }
 </script>
 
 <style lang="scss">
 @import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.5s ease !important;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0 !important;
+}
+
 * {
 	margin: 0;
 	padding: 0;
@@ -83,7 +132,7 @@ export default {
 }
 #app {
 	height: 100vh;
-	width: 100%;
+	width: 100vw;
 	.wallpaper,
 	.content {
 		position: fixed;
@@ -98,10 +147,23 @@ export default {
 	}
 	.content {
 		z-index: 1;
-		padding: 20px;
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		position: relative;
+
+		.generalWindow {
+			position: absolute;
+			width: calc(100% - 40px);
+			height: calc(100% - 40px);
+			background-color: rgba(255, 255, 255, 0.3);
+			border-radius: 5px;
+			overflow: hidden;
+			margin: 0 auto;
+			box-shadow: 3px 7px 16px -5px rgba(0, 0, 0, 0.75);
+			backdrop-filter: blur(4px);
+			transition: background-color 0.6s ease;
+		}
 	}
 
 	.closeButton {
@@ -123,13 +185,7 @@ export default {
 			background-color: rgba(255, 255, 255, 0.6);
 		}
 	}
-	.fade-enter-active,
-	.fade-leave-active {
-		transition: opacity 0.5s;
-	}
-	.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-		opacity: 0;
-	}
+
 	#loading {
 		position: absolute;
 		width: 100%;
@@ -138,15 +194,67 @@ export default {
 		top: 0;
 		left: 0;
 		border-radius: 5px;
-		background-image: url("assets/loading.gif");
-		background-position: center;
-		background-repeat: no-repeat;
-		background-size: 70px;
 		z-index: 99;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 
-		h1 {
-			background-color: white;
-			text-align: center;
+		#loadingImage {
+			width: 150px;
+			height: 150px;
+		}
+
+		#loadingMessage {
+			width: 300px;
+			height: 300px;
+			background-color: rgba(255, 255, 255, 0.9);
+			border-radius: 5px;
+			padding: 10px;
+			display: grid;
+			justify-items: center;
+
+			grid-template-areas:
+				"h"
+				"i"
+				"p"
+				"p";
+			h1 {
+				text-align: center;
+				font-size: 30px;
+				height: 70px;
+				font-weight: lighter;
+				grid-area: "h";
+			}
+
+			img {
+				grid-area: "i";
+				padding: 10px;
+				height: 140px;
+			}
+
+			#progressBar {
+				background-color: rgba(0, 0, 0, 0.3);
+				width: 100%;
+				height: 50px;
+				border-radius: 5px;
+				overflow: hidden;
+				box-shadow: 3px 7px 16px -5px rgba(0, 0, 0, 0.75);
+				position: relative;
+				grid-area: "p";
+				p {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					height: 100%;
+					width: 100%;
+					position: absolute;
+				}
+
+				#progress {
+					height: 100%;
+					background-color: rgb(55, 167, 55);
+				}
+			}
 		}
 	}
 }

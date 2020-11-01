@@ -1,19 +1,19 @@
 <template>
-	<div id="Users">
-		<CreateUser v-if="users.createUser" :editUser="userEdit" />
-		<template v-if="!users.createUser">
+	<div id="Users" class="generalWindow">
+		<CreateUser v-if="state.users.createUser" :editUser="state.userEdit" />
+		<template v-if="!state.users.createUser">
 			<h1>{{ $lang.Users.headerText }}</h1>
 			<div id="userArea">
 				<div
 					class="newUser"
-					@click="users.createUser = true"
+					@click="state.users.createUser = true"
 					:title="$lang.Users.titleCreateUser"
 				>
 					+
 				</div>
 				<div
 					class="user"
-					v-for="user in users.userList"
+					v-for="user in state.users.userList"
 					:key="user._id"
 					@click.self="selectUser(user)"
 				>
@@ -41,76 +41,82 @@
 </template>
 
 <script>
-import CreateUser from "./Components/CreateUser"
-import { mapActions, mapState } from "vuex"
 import { ipcRenderer } from "electron"
 
+import CreateUser from "./Components/CreateUser"
+
+import { reactive, computed, watch } from "vue"
+import { useStore } from "vuex"
+import { useRouter } from "vue-router"
+
+import vex from "@/plugins/vex"
+
 export default {
+	name: "Users",
+
 	components: { CreateUser },
 
-	computed: {
-		...mapState(["users"]),
-		...mapActions(["setUser"]),
-
-		createUser() {
-			return this.users.createUser
-		},
-	},
-
-	mounted() {
-		ipcRenderer.send("change_window_title", `| Usuários`)
-	},
-
-	data() {
-		return {
+	setup() {
+		const store = useStore()
+		const router = useRouter()
+		const state = reactive({
+			users: store.state.users,
 			userEdit: {},
+		})
+
+		const createUser = computed(() => {
+			return state.users.createUser
+		})
+
+		const selectUser = (user) => {
+			state.users.activeUser = user
+			store.dispatch("getProgress")
+
+			router.push("/")
 		}
-	},
 
-	methods: {
-		selectUser(user) {
-			this.users.activeUser = user
-			this.$store.dispatch("getProgress")
+		const editUser = (user) => {
+			state.userEdit = user
+			state.users.createUser = true
+		}
 
-			this.$router.push("/")
-		},
-
-		editUser(user) {
-			this.userEdit = user
-			this.users.createUser = true
-		},
-
-		deleteUser(user) {
-			this.$vex.dialog.confirm({
+		const deleteUser = (user) => {
+			vex.dialog.confirm({
 				message: `Seu progresso de leitura será perdido, deseja mesmo apagar o usuário ${user.name}? `,
 				callback: (res) => {
 					if (res) {
-						ipcRenderer.send("remove_user", user)
+						ipcRenderer.send("remove_user", JSON.parse(JSON.stringify(user)))
 					}
 				},
 			})
-		},
-	},
+		}
 
-	watch: {
-		createUser(val) {
-			if (!val) {
-				this.userEdit = {}
+		watch(
+			() => createUser.value,
+			(val) => {
+				if (!val) {
+					state.userEdit = {}
+				}
 			}
-		},
+		)
+
+		ipcRenderer.send("change_window_title", `| Usuários`)
+
+		return {
+			state,
+			createUser,
+			selectUser,
+			editUser,
+			deleteUser,
+		}
 	},
 }
 </script>
 
 <style lang="scss">
 #Users {
-	background-color: rgba(255, 255, 255, 0.3);
-	width: 90%;
-	height: 300px;
-	border-radius: 5px;
-	overflow: hidden;
-	margin: 0 auto;
-	box-shadow: 3px 7px 16px -5px rgba(0, 0, 0, 0.75);
+	min-height: 300px;
+	height: 40% !important;
 
 	h1 {
 		text-align: center;

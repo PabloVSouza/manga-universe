@@ -1,12 +1,5 @@
 <template>
 	<div id="Detail">
-		<button
-			class="closeButton"
-			id="closeDetail"
-			@click.prevent="$emit('close-detail')"
-		>
-			X
-		</button>
 		<div id="cover">
 			<img :src="mangaInfo.cover" :alt="mangaInfo.name" />
 		</div>
@@ -34,7 +27,7 @@
 			</p>
 		</div>
 		<div id="menuChapters">
-			{{ downloader.downloadQueue.length }}
+			{{ state.downloader.downloadQueue.length }}
 			{{ $lang.Downloader.Detail.downloadQueue }}.
 			<button
 				@click.prevent="downloadFromQueue"
@@ -50,12 +43,14 @@
 			<h3>{{ $lang.Downloader.Detail.chapters }}:</h3>
 			<ul>
 				<li
-					v-for="(chapter, key) in downloader.chapterList"
+					v-for="(chapter, key) in state.downloader.chapterList"
 					:key="key"
 					@click="downloadChapter(chapter)"
 					:style="[
-						alreadyDownloaded(chapter) ? { backgroundColor: 'green' } : {},
-						onQueue(chapter) ? { backgroundColor: 'rgb(150,150,30)' } : {},
+						alreadyDownloaded(chapter)
+							? { backgroundColor: 'rgb(80,150,30)' }
+							: {},
+						onQueue(chapter) ? { backgroundColor: 'rgb(219, 208, 56)' } : {},
 					]"
 				>
 					{{ chapter.number }}
@@ -66,81 +61,88 @@
 </template>
 
 <script>
-import { mapState } from "vuex"
-import path from "path"
-
 const { ipcRenderer } = require("electron")
 
+import { useStore } from "vuex"
+import { reactive, computed, watch } from "vue"
+
+import path from "path"
+
 export default {
-	computed: {
-		...mapState(["downloader", "reader", "app"]),
-
-		mangaInfo() {
-			if (this.downloadMore) {
-				let objReturn = JSON.parse(JSON.stringify(this.reader.activeManga))
-
-				objReturn.categories = objReturn.genres
-
-				objReturn.cover = this.coverDirectory(objReturn)
-				return objReturn
-			} else {
-				return this.downloader.activeManga
-			}
-		},
-
-		mangaList() {
-			return this.reader.mangaList
-		},
-	},
+	name: "Detail",
 
 	props: ["downloadMore"],
 
-	created() {
-		this.activateManga()
-	},
+	setup(props) {
+		const store = useStore()
+		const state = reactive({
+			downloader: store.state.downloader,
+			reader: store.state.reader,
+			app: store.state.app,
+			mangaList: store.state.reader.mangaList,
+		})
 
-	methods: {
-		activateManga() {
-			let findManga = this.reader.mangaList.find(
-				(manga) => manga.id_site == this.downloader.activeManga.id_serie
+		const mangaInfo = computed(() => {
+			if (props.downloadMore) {
+				let objReturn = JSON.parse(JSON.stringify(state.reader.activeManga))
+
+				objReturn.categories = objReturn.genres
+
+				objReturn.cover = coverDirectory(objReturn)
+				return objReturn
+			} else {
+				return state.downloader.activeManga
+			}
+		})
+
+		const activateManga = () => {
+			let findManga = state.reader.mangaList.find(
+				(manga) => manga.id_site == state.downloader.activeManga.id_serie
 			)
 			if (findManga) {
-				this.reader.activeManga = findManga
+				state.reader.activeManga = findManga
 
-				ipcRenderer.send("get_available_chapters", this.reader.activeManga._id)
+				ipcRenderer.send("get_available_chapters", state.reader.activeManga._id)
 			}
-		},
+		}
 
-		coverDirectory(manga) {
+		const coverDirectory = (manga) => {
 			const filterFolderName = manga.name.replace(":", "-")
 
-			const directory = `file:///${path.join(
-				this.app.Folder,
-				"mangas",
-				filterFolderName,
-				manga.cover
+			const directory = `file:///${encodeURI(
+				path.join(state.app.Folder, "mangas", filterFolderName, manga.cover)
 			)}`
 
 			return directory
-		},
+		}
 
-		downloadChapter(chapter) {
-			if (!this.alreadyDownloaded(chapter)) {
-				this.downloader.downloadQueue.push(JSON.parse(JSON.stringify(chapter)))
+		const downloadChapter = (chapter) => {
+			if (!alreadyDownloaded(chapter)) {
+				const findInQueue = state.downloader.downloadQueue.findIndex(
+					(row) => row.id_chapter == chapter.id_chapter
+				)
+
+				if (findInQueue < 0) {
+					state.downloader.downloadQueue.push(
+						JSON.parse(JSON.stringify(chapter))
+					)
+				} else {
+					state.downloader.downloadQueue.splice(findInQueue, 1)
+				}
 			}
-		},
+		}
 
-		downloadFromQueue() {
+		const downloadFromQueue = () => {
 			ipcRenderer.send(
 				"download_queue",
-				this.mangaInfo,
-				this.downloader.downloadQueue
+				mangaInfo.value,
+				JSON.parse(JSON.stringify(state.downloader.downloadQueue))
 			)
-		},
+		}
 
-		alreadyDownloaded(chapter) {
+		const alreadyDownloaded = (chapter) => {
 			let res = false
-			const downloadedChapter = this.reader.chapterList.find(
+			const downloadedChapter = state.reader.chapterList.find(
 				(ch) => ch.id_site == chapter.id_chapter
 			)
 
@@ -149,12 +151,12 @@ export default {
 			}
 
 			return res
-		},
+		}
 
-		onQueue(chapter) {
+		const onQueue = (chapter) => {
 			let res = false
 
-			const on = this.downloader.downloadQueue.find(
+			const on = state.downloader.downloadQueue.find(
 				(dq) => dq.id_chapter == chapter.id_chapter
 			)
 
@@ -163,44 +165,47 @@ export default {
 			}
 
 			return res
-		},
+		}
 
-		markAll() {
-			if (this.downloader.downloadQueue.length > 0) {
-				this.downloader.downloadQueue = []
+		const markAll = () => {
+			if (state.downloader.downloadQueue.length > 0) {
+				state.downloader.downloadQueue = []
 			} else {
-				for (const ch of this.downloader.chapterList) {
-					if (!this.alreadyDownloaded(ch)) {
-						this.downloader.downloadQueue.push(JSON.parse(JSON.stringify(ch)))
+				for (const ch of state.downloader.chapterList) {
+					if (!alreadyDownloaded(ch)) {
+						state.downloader.downloadQueue.push(JSON.parse(JSON.stringify(ch)))
 					}
 				}
 			}
-		},
-	},
+		}
 
-	watch: {
-		mangaList() {
-			this.activateManga()
-		},
+		activateManga()
+
+		watch(
+			() => state.mangaList,
+			() => {
+				activateManga()
+			}
+		)
+
+		return {
+			state,
+			mangaInfo,
+			downloadChapter,
+			downloadFromQueue,
+			alreadyDownloaded,
+			onQueue,
+			markAll,
+		}
 	},
 }
 </script>
 
 <style lang="scss">
-#closeDetail {
-	&:hover {
-		background-color: rgba(200, 200, 200, 1) !important;
-	}
-}
-
 #Detail {
 	position: absolute;
-	height: 100%;
-	width: 100%;
-	top: 0;
-	left: 0;
-	border-radius: 5px;
-	background-color: rgba(255, 255, 255, 0.9);
+	width: calc(100% - 90px);
+	height: calc(100% - 90px);
 	padding: 10px;
 	overflow: auto;
 	display: flex;
