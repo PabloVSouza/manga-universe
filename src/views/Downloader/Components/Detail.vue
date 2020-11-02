@@ -70,9 +70,7 @@ import path from "path"
 
 export default {
 	name: "Detail",
-
 	props: ["downloadMore"],
-
 	setup(props) {
 		const store = useStore()
 		const state = reactive({
@@ -260,6 +258,7 @@ export default {
 			cursor: pointer;
 			border-radius: 5px;
 			transition: background-color 0.6s ease;
+
 			&:hover {
 				background-color: rgba(200, 200, 200, 1);
 			}
@@ -278,15 +277,16 @@ export default {
 				width: 130px;
 				margin: 10px;
 				text-align: center;
-				background-color: rgba(78, 78, 78, 0.9);
+				background-color: rgba(255, 255, 255, 0.3);
 				color: white;
 				padding: 10px;
 				border-radius: 5px;
 				cursor: pointer;
 				transition: background-color 0.6s ease;
+				box-shadow: 2px 6px 16px -5px rgba(0, 0, 0, 0.75);
 
 				&:hover {
-					background-color: rgba(128, 128, 128, 0.9);
+					background-color: rgba(255, 255, 255, 0.6);
 				}
 			}
 		}
