@@ -24,7 +24,7 @@ export default createStore({
 			chapterList: [],
 			activeManga: {},
 			downloadQueue: [],
-			detail: false,
+			activeComponent: "Search",
 		},
 		reader: {
 			mangaList: [],
@@ -187,7 +187,7 @@ export default createStore({
 
 			ipcRenderer.on("chapter_result", (event, result) => {
 				this.state.downloader.chapterList = result
-				this.state.downloader.detail = true
+				this.state.downloader.activeComponent = "Detail"
 			})
 		},
 		getMangaDetail(event, param) {
