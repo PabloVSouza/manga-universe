@@ -114,7 +114,7 @@ export default {
 
 				directory = `url('file:///${encodeURI(
 					path.join(
-						state.app.Folder,
+						state.app.folder,
 						"mangas",
 						filterFolderName,
 						String(state.reader.activeChapter.number),

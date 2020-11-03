@@ -7,9 +7,13 @@ const { ipcRenderer } = require("electron")
 export default createStore({
 	state: {
 		app: {
-			wallpaper: "",
-			Folder: "",
-			Version: "",
+			wallpaper: {
+				active: "",
+				list: [],
+				mode: "cover",
+			},
+			folder: "",
+			version: "",
 		},
 		loading: {
 			active: false,
@@ -67,22 +71,28 @@ export default createStore({
 		setupIpc() {
 			//App Events
 
-			ipcRenderer.send("get_wallpaper")
+			ipcRenderer.send("get_wallpaper_settings")
+			ipcRenderer.on("wallpaper_settings", (event, settings) => {
+				if (this.state.app.wallpaper.active == "") {
+					this.state.app.wallpaper = JSON.parse(JSON.stringify(settings))
+				}
+			})
 
-			ipcRenderer.on("wallpaper", (event, file) => {
-				this.state.app.wallpaper = file
+			ipcRenderer.send("get_wallpaper_list")
+			ipcRenderer.on("wallpaper_list", (event, list) => {
+				this.state.app.wallpaper.list = list
 			})
 
 			ipcRenderer.send("get_app_version")
 
 			ipcRenderer.on("app_version", (event, version) => {
-				this.state.app.Version = version
+				this.state.app.version = version
 			})
 
 			ipcRenderer.send("get_app_folder")
 
 			ipcRenderer.on("app_folder", (event, dir) => {
-				this.state.app.Folder = dir
+				this.state.app.folder = dir
 			})
 
 			ipcRenderer.on("connection_error", () => {

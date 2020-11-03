@@ -6,6 +6,9 @@
 				{{ $lang.Home.userMenu.btnReverseKeys }}:
 				<input type="checkbox" v-model="state.users.activeUser.reverse" />
 			</li>
+			<li @click="changeWallpaper()">
+				{{ $lang.Home.userMenu.btnChangeWallpaper }}
+			</li>
 			<li @click="changeUser()">{{ $lang.Home.userMenu.btnChangeUser }}</li>
 		</ul>
 	</div>
@@ -34,6 +37,10 @@ export default {
 			state.users.activeUser = {}
 			state.users.userMenu = false
 			router.push("/users")
+		}
+
+		const changeWallpaper = () => {
+			router.push("/wallpaper")
 		}
 
 		const handleClick = (e) => {
@@ -69,6 +76,7 @@ export default {
 		return {
 			state,
 			changeUser,
+			changeWallpaper,
 			updateUser,
 		}
 	},
