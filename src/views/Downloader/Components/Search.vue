@@ -41,7 +41,6 @@ export default {
 
 		const state = reactive({
 			searchTerms: "",
-			mangaDetail: false,
 			isTyping: false,
 			downloader: store.state.downloader,
 		})

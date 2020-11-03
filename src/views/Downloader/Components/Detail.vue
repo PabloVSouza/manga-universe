@@ -111,7 +111,7 @@ export default {
 			const filterFolderName = manga.name.replace(":", "-")
 
 			const directory = `file:///${encodeURI(
-				path.join(state.app.Folder, "mangas", filterFolderName, manga.cover)
+				path.join(state.app.folder, "mangas", filterFolderName, manga.cover)
 			)}`
 
 			return directory

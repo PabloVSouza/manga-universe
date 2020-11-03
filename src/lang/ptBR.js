@@ -31,6 +31,7 @@ module.exports = {
 		userMenu: {
 			btnReverseKeys: "Inverter teclas",
 			btnChangeUser: "Trocar de Usuário",
+			btnChangeWallpaper: "Alterar o Papel de Parede",
 		},
 	},
 	Users: {
@@ -50,5 +51,11 @@ module.exports = {
 		headerText: "Digite o endereço do site",
 		textPlaceholder: "Url",
 		titleConfirm: "Confirmar",
+	},
+	Wallpaper: {
+		headerText: "Selecione o Wallpaper",
+		btnNewWallpaper: "Novo Wallpaper",
+		btnDefaultWallpaper: "Padrão",
+		labelMode: "Modo de Atuação",
 	},
 }

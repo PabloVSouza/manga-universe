@@ -4,6 +4,7 @@
 			class="wallpaper"
 			:style="{
 				backgroundImage: getWallpaper,
+				backgroundSize: getWallpaperMode,
 			}"
 		></div>
 		<div class="content">
@@ -57,9 +58,16 @@ export default {
 
 		const getWallpaper = computed(() => {
 			let response = ""
-			if (store.state.app.wallpaper != "") {
+			if (
+				store.state.app.wallpaper.active != "" &&
+				store.state.app.folder != ""
+			) {
 				response = `url('file:///${encodeURI(
-					path.join(store.state.app.Folder, store.state.app.wallpaper)
+					path.join(
+						store.state.app.folder,
+						"wallpaper",
+						store.state.app.wallpaper.active
+					)
 				)}')`
 				response = response.replace(/\\/g, "/")
 			} else {
@@ -68,6 +76,8 @@ export default {
 
 			return response
 		})
+
+		const getWallpaperMode = computed(() => store.state.app.wallpaper.mode)
 
 		const getProgress = computed(() => {
 			const current = store.state.loading.progress.current
@@ -83,6 +93,7 @@ export default {
 
 		return {
 			getWallpaper,
+			getWallpaperMode,
 			store,
 			getProgress,
 		}
@@ -142,7 +153,6 @@ export default {
 		width: 100%;
 	}
 	.wallpaper {
-		background-size: cover;
 		background-repeat: no-repeat;
 	}
 	.content {
