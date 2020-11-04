@@ -127,23 +127,31 @@ export default {
 			return directory
 		}
 
-		const handleKeys = (key) => {
-			if (key.key == "ArrowLeft") {
-				if (!state.users.activeUser.reverse) {
-					changePage(-1)
-				} else {
-					changePage(1)
-				}
+		const handleKeys = (e) => {
+			const keys = {
+				ArrowLeft: () => {
+					if (!state.users.activeUser.reverse) {
+						changePage(-1)
+					} else {
+						changePage(1)
+					}
+				},
+
+				ArrowRight: () => {
+					if (!state.users.activeUser.reverse) {
+						changePage(1)
+					} else {
+						changePage(-1)
+					}
+				},
+
+				Escape: () => {
+					router.push("/")
+				},
 			}
-			if (key.key == "ArrowRight") {
-				if (!state.users.activeUser.reverse) {
-					changePage(1)
-				} else {
-					changePage(-1)
-				}
-			}
-			if (key.key == "Escape") {
-				router.push("/")
+
+			if (keys[e.key]) {
+				keys[e.key]()
 			}
 		}
 
