@@ -122,25 +122,25 @@ export default createStore({
 
 			//User Events
 
-			ipcRenderer.send("get_available_users")
+			// ipcRenderer.send("get_available_users")
 
-			ipcRenderer.on("created_user", () => {
-				ipcRenderer.send("get_available_users")
-				this.state.users.createUser = false
-			})
+			// ipcRenderer.on("created_user", () => {
+			// 	ipcRenderer.send("get_available_users")
+			// 	this.state.users.createUser = false
+			// })
 
-			ipcRenderer.on("updated_users", () => {
-				this.state.users.createUser = false
-				ipcRenderer.send("get_available_users")
-			})
+			// ipcRenderer.on("updated_users", () => {
+			// 	this.state.users.createUser = false
+			// 	ipcRenderer.send("get_available_users")
+			// })
 
-			ipcRenderer.on("removed_user", () => {
-				ipcRenderer.send("get_available_users")
-			})
+			// ipcRenderer.on("removed_user", () => {
+			// 	ipcRenderer.send("get_available_users")
+			// })
 
-			ipcRenderer.on("available_users", (event, result) => {
-				this.state.users.userList = result
-			})
+			// ipcRenderer.on("available_users", (event, result) => {
+			// 	this.state.users.userList = result
+			// })
 
 			//Reader Events
 

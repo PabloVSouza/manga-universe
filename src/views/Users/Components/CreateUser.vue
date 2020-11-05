@@ -10,7 +10,7 @@
 		</div>
 		<div id="buttonArea">
 			<button
-				@click.prevent="closeForm()"
+				@click.prevent="$emit('close-form')"
 				:title="$lang.Users.CreateUser.titleCancel"
 			>
 				<img src="@/assets/cancel.svg" alt="cancel" />
@@ -35,7 +35,7 @@ export default {
 	name: "CreateUser",
 	props: ["editUser"],
 
-	setup(props) {
+	setup(props, ctx) {
 		const store = useStore()
 		const state = reactive({
 			user: {
@@ -45,23 +45,24 @@ export default {
 			users: store.state.users,
 		})
 
-		const closeForm = () => {
-			state.users.createUser = false
-		}
-
-		const registerUser = () => {
+		const registerUser = async () => {
 			if (state.user.name != "") {
 				if (props.editUser._id == undefined) {
-					ipcRenderer.send(
-						"create_user",
-						JSON.parse(JSON.stringify(state.user))
-					)
+					await ipcRenderer.invoke("insert", {
+						table: "User",
+						data: JSON.parse(JSON.stringify(state.user)),
+					})
 				} else {
-					ipcRenderer.send(
-						"update_user",
-						JSON.parse(JSON.stringify(state.user))
-					)
+					console.log("oi")
+					let res = await ipcRenderer.send("update", {
+						table: "User",
+						query: { _id: state.user._id },
+						data: JSON.parse(JSON.stringify(state.user)),
+					})
+
+					console.log(res)
 				}
+				ctx.emit("close-form")
 			}
 		}
 
@@ -69,7 +70,7 @@ export default {
 			state.user = JSON.parse(JSON.stringify(props.editUser))
 		}
 
-		return { state, closeForm, registerUser }
+		return { state, registerUser }
 	},
 }
 </script>

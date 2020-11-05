@@ -52,7 +52,6 @@ export default {
 	setup() {
 		const store = useStore()
 		const router = useRouter()
-		// const route = useRoute()
 
 		router.push("/")
 

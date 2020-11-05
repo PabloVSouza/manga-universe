@@ -1,4 +1,5 @@
 import { Chapter, Manga, User, ReadProgress } from "@/db"
+import db from "@/db"
 import { ipcMain } from "electron"
 
 let win
@@ -9,6 +10,97 @@ const setWin = (extWin) => {
 }
 
 const eventList = () => {
+	ipcMain.handle("find", async (event, params) => {
+		return new Promise((resolve, reject) => {
+			if (db[params.table]) {
+				db[params.table]
+					.find(params.query)
+					.sort(params.sort)
+					.exec((err, res) => {
+						if (!err) {
+							resolve(res)
+						} else {
+							reject(err)
+						}
+					})
+			} else {
+				reject("Database not found")
+			}
+		})
+	})
+
+	ipcMain.handle("findOne", async (event, params) => {
+		return new Promise((resolve, reject) => {
+			if (db[params.table]) {
+				db[params.table]
+					.findOne(params.query)
+					.sort(params.sort)
+					.exec((err, res) => {
+						if (!err) {
+							resolve(res)
+						} else {
+							reject(err)
+						}
+					})
+			} else {
+				reject("Database not found")
+			}
+		})
+	})
+
+	ipcMain.handle("insert", async (event, params) => {
+		return new Promise((resolve, reject) => {
+			if (db[params.table]) {
+				db[params.table].insert(params.data, (err, res) => {
+					if (!err) {
+						resolve(res)
+					} else {
+						reject(err)
+					}
+				})
+			} else {
+				reject("Database not found")
+			}
+		})
+	})
+
+	ipcMain.handle("update", async (event, params) => {
+		return new Promise((resolve, reject) => {
+			if (db[params.table]) {
+				db[params.table].update(
+					params.query,
+					{ $set: params.data },
+					(err, res) => {
+						if (!err) {
+							console.log(res)
+							resolve(res)
+						} else {
+							reject(err)
+						}
+					}
+				)
+			} else {
+				reject("Database not found")
+			}
+		})
+	})
+
+	ipcMain.handle("remove", async (event, params) => {
+		return new Promise((resolve, reject) => {
+			if (db[params.table]) {
+				db[params.table].remove(params.query, (err, res) => {
+					if (!err) {
+						resolve(res)
+					} else {
+						reject(err)
+					}
+				})
+			} else {
+				reject("Database not found")
+			}
+		})
+	})
+
 	ipcMain.on("get_available_mangas", () => {
 		Manga.find({})
 			.sort({ createdAt: 1 })
