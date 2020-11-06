@@ -33,6 +33,8 @@ export default createStore({
 		reader: {
 			activeManga: {},
 			activeChapter: {},
+			chapterList: [],
+			readProgress: [],
 		},
 		users: {
 			activeUser: {},

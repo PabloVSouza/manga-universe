@@ -93,7 +93,7 @@ export default {
 			store.state.users.userList = await ipcRenderer.invoke("find", {
 				table: "User",
 				query: {},
-				sort: {},
+				sort: { updatedAt: 1 },
 			})
 		}
 
