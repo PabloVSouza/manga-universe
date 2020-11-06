@@ -2,7 +2,7 @@
 	<div id="mangaList">
 		<ul>
 			<li
-				v-for="manga in state.reader.mangaList"
+				v-for="manga in state.mangaList"
 				:key="manga._id"
 				@click="selectManga(manga)"
 				:class="manga._id == state.reader.activeManga._id ? 'activeManga' : ''"
@@ -33,9 +33,25 @@ export default {
 	setup() {
 		const store = useStore()
 		const state = reactive({
+			mangaList: [],
 			reader: store.state.reader,
 			app: store.state.app,
 		})
+
+		function getMangas() {
+			ipcRenderer
+				.invoke("find", {
+					table: "Manga",
+					query: {},
+					sort: { createdAt: 1 },
+				})
+				.then((res) => {
+					state.mangaList = res
+					store.state.reader.activeManga = res[0]
+				})
+		}
+
+		getMangas()
 
 		const coverDirectory = (manga) => {
 			const filterFolderName = manga.name.replace(":", "-")

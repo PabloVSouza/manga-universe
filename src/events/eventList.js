@@ -11,7 +11,7 @@ let win
 const setWin = (extWin) => {
 	win = extWin
 	apiInterface.setWin(extWin)
-	dbInterface.setWin(extWin)
+	dbInterface()
 	eventList()
 }
 

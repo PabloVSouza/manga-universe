@@ -51,7 +51,7 @@
 				<table>
 					<tbody>
 						<tr
-							v-for="chapter in state.reader.chapterList"
+							v-for="chapter in state.chapterList"
 							:key="chapter._id"
 							@dblclick.prevent="readChapter(chapter)"
 							:title="$lang.Home.mangaChapterSelection.titleDoubleClickRead"
@@ -84,7 +84,7 @@
 <script>
 const { ipcRenderer } = require("electron")
 
-import { reactive, computed } from "vue"
+import { reactive, computed, watch } from "vue"
 import { useStore } from "vuex"
 import { useRouter } from "vue-router"
 
@@ -101,17 +101,51 @@ export default {
 			reader: store.state.reader,
 			users: store.state.users,
 			app: store.state.app,
+			chapterList: [],
+			readProgress: [],
 		})
+
+		function getProgress() {
+			ipcRenderer
+				.invoke("find", {
+					table: "ReadProgress",
+					query: {
+						manga_id: store.state.reader.activeManga._id,
+						user_id: store.state.users.activeUser._id,
+					},
+					sort: {},
+				})
+				.then((res) => {
+					state.readProgress = res
+				})
+		}
+
+		function getChapters() {
+			ipcRenderer
+				.invoke("find", {
+					table: "Chapter",
+					query: {
+						manga_id: store.state.reader.activeManga._id,
+					},
+					sort: { number: 1 },
+				})
+				.then((res) => {
+					state.chapterList = res
+					getProgress()
+				})
+		}
+
+		getChapters()
 
 		const totalProgress = computed(() => {
 			let total = []
-			for (const chapter of state.reader.chapterList) {
+			for (const chapter of state.chapterList) {
 				total.push(chapterProgress(chapter))
 			}
 
 			const totalSum = total.reduce((value, next) => value + next, 0)
 
-			const all = state.reader.chapterList.length * 100
+			const all = state.chapterList.length * 100
 
 			return Math.round((100 / all) * totalSum)
 		})
@@ -136,12 +170,12 @@ export default {
 		})
 
 		const readChapter = (chapter) => {
-			state.reader.activeChapter = chapter
+			store.state.reader.activeChapter = chapter
 			router.push("/reader")
 		}
 
 		const chapterProgress = (chapter) => {
-			const progress = state.reader.readProgress.find(
+			const progress = state.readProgress.find(
 				(p) => p.chapter_id == chapter._id
 			)
 
@@ -157,30 +191,52 @@ export default {
 		}
 
 		const markAsUnread = (chapter) => {
-			ipcRenderer.send("update_progress", {
-				chapter_id: chapter._id,
-				user_id: state.users.activeUser._id,
-				totalPages: chapter.pages.length,
-				currentPage: 1,
-			})
+			ipcRenderer
+				.invoke("remove", {
+					table: "ReadProgress",
+					query: { chapter_id: chapter._id },
+				})
+				.then(() => {
+					getProgress()
+				})
 		}
 
 		const markAsRead = (chapter) => {
-			ipcRenderer.send("update_progress", {
-				chapter_id: chapter._id,
-				user_id: state.users.activeUser._id,
-				totalPages: chapter.pages.length,
-				currentPage: chapter.pages.length,
-			})
+			ipcRenderer
+				.invoke("update", {
+					table: "ReadProgress",
+					query: { chapter_id: chapter._id },
+					data: {
+						currentPage: chapter.pages.length,
+					},
+				})
+				.then((res) => {
+					if (res == 0) {
+						ipcRenderer
+							.invoke("insert", {
+								table: "ReadProgress",
+								data: {
+									chapter_id: chapter._id,
+									user_id: state.users.activeUser._id,
+									totalPages: chapter.pages.length,
+									currentPage: chapter.pages.length,
+									manga_id: state.reader.activeManga._id,
+								},
+							})
+							.then(() => {
+								getProgress()
+							})
+					} else {
+						getProgress()
+					}
+				})
 		}
 
 		const continueReading = () => {
 			let lastRead
 
-			for (const c of state.reader.chapterList) {
-				const progress = state.reader.readProgress.find(
-					(p) => p.chapter_id == c._id
-				)
+			for (const c of state.chapterList) {
+				const progress = state.readProgress.find((p) => p.chapter_id == c._id)
 
 				if (progress) {
 					lastRead = c
@@ -188,10 +244,10 @@ export default {
 			}
 
 			if (lastRead) {
-				state.reader.activeChapter = lastRead
+				store.state.reader.activeChapter = lastRead
 				router.push("/reader")
 			} else {
-				state.reader.activeChapter = state.reader.chapterList[0]
+				store.state.reader.activeChapter = state.chapterList[0]
 				router.push("/reader")
 			}
 		}
@@ -201,6 +257,13 @@ export default {
 
 			router.push("/downloader/true")
 		}
+
+		watch(
+			() => state.reader.activeManga,
+			() => {
+				getChapters()
+			}
+		)
 
 		return {
 			state,

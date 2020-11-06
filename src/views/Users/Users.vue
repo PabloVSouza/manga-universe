@@ -76,8 +76,6 @@ export default {
 
 		const selectUser = (user) => {
 			state.users.activeUser = user
-			store.dispatch("getProgress")
-
 			router.push("/")
 		}
 
@@ -111,7 +109,7 @@ export default {
 
 						await ipcRenderer.invoke("remove", {
 							table: "ReadProgress",
-							query: { _id: user._id },
+							query: { user_id: user._id },
 						})
 
 						getUsers()

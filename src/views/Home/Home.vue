@@ -1,10 +1,8 @@
 <template>
 	<div id="Home" class="generalWindow">
 		<topMenu />
-		<template v-if="reader.mangaList.length > 0">
-			<mangaList />
-			<mangaChapterSelection />
-		</template>
+		<mangaList />
+		<mangaChapterSelection />
 		<transition name="fade">
 			<userMenu v-if="users.userMenu" />
 		</transition>
@@ -37,7 +35,6 @@ export default {
 		const router = useRouter()
 		const state = reactive({
 			showDownloader: false,
-			reader: store.state.reader,
 			users: store.state.users,
 		})
 

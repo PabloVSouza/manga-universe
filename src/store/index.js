@@ -31,11 +31,8 @@ export default createStore({
 			activeComponent: "Search",
 		},
 		reader: {
-			mangaList: [],
-			chapterList: [],
 			activeManga: {},
 			activeChapter: {},
-			readProgress: [],
 		},
 		users: {
 			activeUser: {},
@@ -120,59 +117,6 @@ export default createStore({
 				router.push(route)
 			})
 
-			//User Events
-
-			// ipcRenderer.send("get_available_users")
-
-			// ipcRenderer.on("created_user", () => {
-			// 	ipcRenderer.send("get_available_users")
-			// 	this.state.users.createUser = false
-			// })
-
-			// ipcRenderer.on("updated_users", () => {
-			// 	this.state.users.createUser = false
-			// 	ipcRenderer.send("get_available_users")
-			// })
-
-			// ipcRenderer.on("removed_user", () => {
-			// 	ipcRenderer.send("get_available_users")
-			// })
-
-			// ipcRenderer.on("available_users", (event, result) => {
-			// 	this.state.users.userList = result
-			// })
-
-			//Reader Events
-
-			ipcRenderer.send("get_available_mangas")
-
-			ipcRenderer.on("available_mangas", (event, result) => {
-				this.state.reader.mangaList = result
-				if (this.state.reader.mangaList.length > 0) {
-					if (this.state.reader.activeManga._id == undefined) {
-						this.state.reader.activeManga = this.state.reader.mangaList[0]
-					}
-					ipcRenderer.send(
-						"get_available_chapters",
-						this.state.reader.activeManga._id
-					)
-				}
-			})
-
-			ipcRenderer.on("available_chapters", (event, result) => {
-				this.state.reader.chapterList = result
-			})
-
-			ipcRenderer.on("read_progress", (event, result) => {
-				this.state.reader.readProgress = result
-			})
-
-			ipcRenderer.on("updated_progress", () => {
-				ipcRenderer.send("get_read_progress", {
-					user_id: this.state.users.activeUser._id,
-				})
-			})
-
 			//Downloader Events
 
 			ipcRenderer.on("finished_download", () => {
@@ -209,11 +153,6 @@ export default createStore({
 			} else {
 				ipcRenderer.send("get_chapters", this.state.reader.activeManga.id_site)
 			}
-		},
-		getProgress() {
-			ipcRenderer.send("get_read_progress", {
-				user_id: this.state.users.activeUser._id,
-			})
 		},
 	},
 

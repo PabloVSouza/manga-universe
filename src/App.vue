@@ -53,6 +53,8 @@ export default {
 		const store = useStore()
 		const router = useRouter()
 
+		ipcRenderer.invoke("fix-progress-db")
+
 		router.push("/")
 
 		const getWallpaper = computed(() => {

@@ -53,14 +53,11 @@ export default {
 						data: JSON.parse(JSON.stringify(state.user)),
 					})
 				} else {
-					console.log("oi")
-					let res = await ipcRenderer.send("update", {
+					await ipcRenderer.invoke("update", {
 						table: "User",
 						query: { _id: state.user._id },
 						data: JSON.parse(JSON.stringify(state.user)),
 					})
-
-					console.log(res)
 				}
 				ctx.emit("close-form")
 			}
