@@ -92,7 +92,7 @@ const eventList = () => {
 		})
 	})
 
-	ipcMain.handle("fix-progress-db", async () => {
+	ipcMain.handle("fix-db", async () => {
 		return new Promise((resolve) => {
 			db.ReadProgress.find({}, (err, allProgress) => {
 				if (allProgress.length > 0) {

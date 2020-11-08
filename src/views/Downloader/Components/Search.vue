@@ -1,5 +1,5 @@
 <template>
-	<div id="Search" v-if="!state.downloader.detail">
+	<div id="Search">
 		<div id="topBar">
 			<input
 				type="text"
@@ -11,7 +11,7 @@
 		<div id="searchResult">
 			<div
 				class="manga"
-				v-for="(manga, key) in state.downloader.mangaList"
+				v-for="(manga, key) in downloader.mangaList"
 				:key="key"
 				@click="getManga(manga)"
 			>
@@ -29,7 +29,7 @@
 <script>
 const { ipcRenderer } = require("electron")
 
-import { reactive, watch } from "vue"
+import { reactive, computed, watch } from "vue"
 import { useStore } from "vuex"
 
 import _ from "lodash"
@@ -42,18 +42,34 @@ export default {
 		const state = reactive({
 			searchTerms: "",
 			isTyping: false,
-			downloader: store.state.downloader,
 		})
+
+		const downloader = computed(() => store.state.downloader)
 
 		const searchMangas = () => {
 			if (state.searchTerms.trim().length > 0) {
-				ipcRenderer.send("search_manga", state.searchTerms)
+				ipcRenderer.invoke("search_manga", state.searchTerms).then((res) => {
+					downloader.value.mangaList = res
+				})
 			}
 		}
 
 		const getManga = (manga) => {
-			state.downloader.activeManga = JSON.parse(JSON.stringify(manga))
-			store.dispatch("getMangaDetail")
+			downloader.value.activeManga = JSON.parse(JSON.stringify(manga))
+			ipcRenderer
+				.invoke(
+					"get_manga_description",
+					JSON.parse(JSON.stringify(downloader.value.activeManga))
+				)
+				.then((description) => {
+					downloader.value.activeManga.description = description
+					ipcRenderer
+						.invoke("get_chapters", JSON.parse(JSON.stringify(manga)))
+						.then((chapters) => {
+							downloader.value.activeManga.chapters = chapters
+							downloader.value.activeComponent = "Detail"
+						})
+				})
 		}
 
 		watch(
@@ -74,6 +90,7 @@ export default {
 
 		return {
 			state,
+			downloader,
 			searchMangas,
 			getManga,
 		}
@@ -109,7 +126,7 @@ export default {
 
 	#searchResult {
 		overflow: auto;
-		height: calc(100% - 60px);
+		max-height: calc(100% - 60px);
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;

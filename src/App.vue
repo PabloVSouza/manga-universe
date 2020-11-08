@@ -53,7 +53,7 @@ export default {
 		const store = useStore()
 		const router = useRouter()
 
-		ipcRenderer.invoke("fix-progress-db")
+		ipcRenderer.invoke("fix-db")
 
 		router.push("/")
 
@@ -90,7 +90,7 @@ export default {
 		})
 
 		store.dispatch("setupIpc")
-		ipcRenderer.send("check_url")
+		ipcRenderer.invoke("urlCheck")
 
 		return {
 			getWallpaper,

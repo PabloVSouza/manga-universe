@@ -1,5 +1,3 @@
-const qs = require("qs")
-const _ = require("lodash")
 const axios = require("axios")
 const fs = require("fs")
 const { app } = require("electron")
@@ -12,76 +10,6 @@ let win
 const setWin = (extWin, url) => {
 	win = extWin
 	siteUrl = url
-}
-
-const searchManga = (searchParams = "Boku no Hero") => {
-	return new Promise((resolve) => {
-		axios({
-			method: "post",
-			url: `${siteUrl}/lib/search/series.json`,
-			headers: {
-				"content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-				"x-requested-with": "XMLHttpRequest",
-			},
-			data: qs.stringify({
-				search: searchParams,
-			}),
-		})
-			.then((res) => {
-				resolve(res.data)
-			})
-			.catch(() => {
-				win.webContents.send("connection_error")
-			})
-	})
-}
-
-const getChapters = (id_serie) => {
-	return new Promise(function(resolve) {
-		let chaptersList = []
-		let currentPage = 1
-
-		getChapterPages(currentPage)
-
-		function getChapterPages(page) {
-			axios
-				.get(
-					`${siteUrl}/series/chapters_list.json?page=${page}&id_serie=${id_serie}`
-				)
-				.then((res) => {
-					let chapters = res.data.chapters
-					if (chapters.length != undefined) {
-						chaptersList = _.concat(chaptersList, chapters)
-						currentPage++
-						getChapterPages(currentPage)
-					} else {
-						resolve(chaptersList.reverse())
-					}
-				})
-				.catch((e) => {
-					console.log(e)
-					resolve(chaptersList.reverse())
-					win.webContents.send("connection_error")
-				})
-		}
-	})
-}
-
-const getMangaDescription = (manga) => {
-	return new Promise((resolve) => {
-		axios.get(`${siteUrl}/${manga.link}`).then((res) => {
-			let res1 = res.data.substring(res.data.indexOf('desc">') + 6)
-
-			let res2 = res1.substring(0, res1.indexOf("<ol") - 3)
-
-			let res3 = res2
-				.replace(/<span>/g, "")
-				.replace(/<\/span>/g, "")
-				.trim()
-
-			resolve(res3)
-		})
-	})
 }
 
 const getDisqusKey = (link) => {
@@ -294,9 +222,6 @@ const downloadChapter = async (mangaData, chapter) => {
 }
 
 const mangaApi = {
-	searchManga,
-	getMangaDescription,
-	getChapters,
 	downloadChapter,
 	setWin,
 }

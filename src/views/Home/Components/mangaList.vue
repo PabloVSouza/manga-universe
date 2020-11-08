@@ -2,10 +2,10 @@
 	<div id="mangaList">
 		<ul>
 			<li
-				v-for="manga in state.mangaList"
+				v-for="manga in mangaList"
 				:key="manga._id"
 				@click="selectManga(manga)"
-				:class="manga._id == state.reader.activeManga._id ? 'activeManga' : ''"
+				:class="manga._id == reader.activeManga._id ? 'activeManga' : ''"
 				:title="manga.name"
 			>
 				<div class="mangaName">
@@ -22,7 +22,7 @@
 <script>
 import { ipcRenderer } from "electron"
 
-import { reactive } from "vue"
+import { computed } from "vue"
 import { useStore } from "vuex"
 
 import path from "path"
@@ -32,11 +32,9 @@ export default {
 
 	setup() {
 		const store = useStore()
-		const state = reactive({
-			mangaList: [],
-			reader: store.state.reader,
-			app: store.state.app,
-		})
+
+		const app = computed(() => store.state.app)
+		const reader = computed(() => store.state.reader)
 
 		function getMangas() {
 			ipcRenderer
@@ -46,7 +44,7 @@ export default {
 					sort: { createdAt: 1 },
 				})
 				.then((res) => {
-					state.mangaList = res
+					store.state.reader.mangaList = res
 					store.state.reader.activeManga = res[0]
 				})
 		}
@@ -57,7 +55,7 @@ export default {
 			const filterFolderName = manga.name.replace(":", "-")
 
 			const directory = `file:///${encodeURI(
-				path.join(state.app.folder, "mangas", filterFolderName, manga.cover)
+				path.join(app.value.folder, "mangas", filterFolderName, manga.cover)
 			)}`
 
 			return directory
@@ -65,11 +63,10 @@ export default {
 
 		const selectManga = (manga) => {
 			store.state.reader.activeManga = manga
-			ipcRenderer.send("get_available_chapters", state.reader.activeManga._id)
 		}
 
 		return {
-			state,
+			reader,
 			coverDirectory,
 			selectManga,
 		}

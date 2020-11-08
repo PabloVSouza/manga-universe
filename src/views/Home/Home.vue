@@ -1,8 +1,8 @@
 <template>
 	<div id="Home" class="generalWindow">
 		<topMenu />
-		<mangaList />
-		<mangaChapterSelection />
+		<mangaList v-if="reader.mangaList.length > 0" />
+		<mangaChapterSelection v-if="reader.mangaList.length > 0" />
 		<transition name="fade">
 			<userMenu v-if="users.userMenu" />
 		</transition>
@@ -17,7 +17,7 @@ import mangaList from "./Components/mangaList"
 import mangaChapterSelection from "./Components/mangaChapterSelection"
 import userMenu from "./Components/userMenu"
 
-import { reactive } from "vue"
+import { reactive, computed } from "vue"
 import { useStore } from "vuex"
 import { useRouter } from "vue-router"
 
@@ -35,16 +35,22 @@ export default {
 		const router = useRouter()
 		const state = reactive({
 			showDownloader: false,
-			users: store.state.users,
 		})
 
-		if (state.users.activeUser._id == undefined) {
+		const users = computed(() => store.state.users)
+		const reader = computed(() => store.state.reader)
+
+		if (users.value.activeUser._id == undefined) {
 			router.push("/users")
 		}
 
 		ipcRenderer.send("change_window_title", ``)
 
-		return state
+		return {
+			state,
+			users,
+			reader,
+		}
 	},
 }
 </script>

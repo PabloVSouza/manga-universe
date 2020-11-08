@@ -33,6 +33,7 @@ export default createStore({
 		reader: {
 			activeManga: {},
 			activeChapter: {},
+			mangaList: [],
 			chapterList: [],
 			readProgress: [],
 		},
@@ -121,41 +122,41 @@ export default createStore({
 
 			//Downloader Events
 
-			ipcRenderer.on("finished_download", () => {
-				ipcRenderer.send("get_available_mangas")
-			})
+			// ipcRenderer.on("finished_download", () => {
+			// 	ipcRenderer.send("get_available_mangas")
+			// })
 
-			ipcRenderer.on("search_result", (event, result) => {
-				this.state.downloader.mangaList = result.series
-			})
+			// ipcRenderer.on("search_result", (event, result) => {
+			// 	this.state.downloader.mangaList = result.series
+			// })
 
-			ipcRenderer.on("finished_queue", () => {
-				this.state.downloader.downloadQueue = []
-			})
+			// ipcRenderer.on("finished_queue", () => {
+			// 	this.state.downloader.downloadQueue = []
+			// })
 
-			ipcRenderer.on("manga_description_result", (event, result) => {
-				this.state.downloader.activeManga.description = result
-				ipcRenderer.send(
-					"get_chapters",
-					this.state.downloader.activeManga.id_serie
-				)
-			})
+			// ipcRenderer.on("manga_description_result", (event, result) => {
+			// 	this.state.downloader.activeManga.description = result
+			// 	ipcRenderer.send(
+			// 		"get_chapters",
+			// 		this.state.downloader.activeManga.id_serie
+			// 	)
+			// })
 
-			ipcRenderer.on("chapter_result", (event, result) => {
-				this.state.downloader.chapterList = result
-				this.state.downloader.activeComponent = "Detail"
-			})
+			// ipcRenderer.on("chapter_result", (event, result) => {
+			// 	this.state.downloader.chapterList = result
+			// 	this.state.downloader.activeComponent = "Detail"
+			// })
 		},
-		getMangaDetail(event, param) {
-			if (!param) {
-				ipcRenderer.send(
-					"get_manga_description",
-					JSON.parse(JSON.stringify(this.state.downloader.activeManga))
-				)
-			} else {
-				ipcRenderer.send("get_chapters", this.state.reader.activeManga.id_site)
-			}
-		},
+		// getMangaDetail(event, param) {
+		// 	if (!param) {
+		// 		ipcRenderer.send(
+		// 			"get_manga_description",
+		// 			JSON.parse(JSON.stringify(this.state.downloader.activeManga))
+		// 		)
+		// 	} else {
+		// 		ipcRenderer.send("get_chapters", this.state.reader.activeManga.id_site)
+		// 	}
+		// },
 	},
 
 	modules: {},
