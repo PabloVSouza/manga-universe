@@ -1,8 +1,8 @@
 <template>
-	<div id="mangaList">
+	<div id="mangaList" v-if="reader.mangaList.length > 0">
 		<ul>
 			<li
-				v-for="manga in mangaList"
+				v-for="manga in reader.mangaList"
 				:key="manga._id"
 				@click="selectManga(manga)"
 				:class="manga._id == reader.activeManga._id ? 'activeManga' : ''"
@@ -38,7 +38,7 @@ export default {
 
 		function getMangas() {
 			ipcRenderer
-				.invoke("find", {
+				.invoke("db-find", {
 					table: "Manga",
 					query: {},
 					sort: { createdAt: 1 },

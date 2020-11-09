@@ -45,7 +45,7 @@
 				<li
 					v-for="(chapter, key) in downloader.activeManga.chapters"
 					:key="key"
-					@click="downloadChapter(chapter)"
+					@click="addToQueue(chapter)"
 					:style="[
 						alreadyDownloaded(chapter)
 							? { backgroundColor: 'rgb(80,150,30)' }
@@ -113,7 +113,7 @@ export default {
 			return directory
 		}
 
-		const downloadChapter = (chapter) => {
+		const addToQueue = (chapter) => {
 			if (!alreadyDownloaded(chapter)) {
 				const findInQueue = downloader.value.downloadQueue.findIndex(
 					(row) => row.id_chapter == chapter.id_chapter
@@ -129,13 +129,60 @@ export default {
 			}
 		}
 
-		const downloadFromQueue = () => {
-			const info = JSON.parse(JSON.stringify(mangaInfo.value))
-			ipcRenderer.send(
-				"download_queue",
-				info,
-				JSON.parse(JSON.stringify(downloader.value.downloadQueue))
-			)
+		const downloadFromQueue = async () => {
+			for (const chapter of downloader.value.downloadQueue) {
+				const download = await ipcRenderer.invoke(
+					"download_chapter",
+					JSON.parse(JSON.stringify(mangaInfo.value)),
+					JSON.parse(JSON.stringify(chapter))
+				)
+
+				const mangaWriteData = {
+					name: mangaInfo.value.name,
+					author: mangaInfo.value.author,
+					artist: mangaInfo.value.artist,
+					genres: mangaInfo.value.categories,
+					description: mangaInfo.value.description,
+					id_site: mangaInfo.value.id_serie,
+					cover: download.coverName,
+				}
+
+				let exist = await ipcRenderer.invoke("db-update", {
+					table: "Manga",
+					query: {
+						name: JSON.parse(JSON.stringify(mangaInfo.value.name)),
+					},
+					data: JSON.parse(JSON.stringify(mangaWriteData)),
+				})
+
+				if (exist === 0) {
+					exist = await ipcRenderer.invoke("db-insert", {
+						table: "Manga",
+						data: JSON.parse(JSON.stringify(mangaWriteData)),
+					})
+				}
+
+				if (exist === 1) {
+					exist = await ipcRenderer.invoke("db-find", {
+						table: "Manga",
+						query: { name: JSON.parse(JSON.stringify(mangaInfo.value.name)) },
+					})
+				}
+
+				const chapterWriteData = {
+					manga_id: exist._id,
+					manga_name: mangaWriteData.name,
+					name: chapter.chapter_name,
+					number: Number(chapter.number),
+					id_site: chapter.id_chapter,
+					pages: download.fileList,
+				}
+
+				await ipcRenderer.invoke("db-insert", {
+					table: "Chapter",
+					data: JSON.parse(JSON.stringify(chapterWriteData)),
+				})
+			}
 		}
 
 		const alreadyDownloaded = (chapter) => {
@@ -190,7 +237,7 @@ export default {
 			downloader,
 			mangaList,
 			mangaInfo,
-			downloadChapter,
+			addToQueue,
 			downloadFromQueue,
 			alreadyDownloaded,
 			onQueue,

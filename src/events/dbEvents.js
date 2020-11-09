@@ -2,7 +2,7 @@ import db from "@/db"
 import { ipcMain } from "electron"
 
 const eventList = () => {
-	ipcMain.handle("find", async (event, params) => {
+	ipcMain.handle("db-find", async (event, params) => {
 		return new Promise((resolve, reject) => {
 			if (db[params.table]) {
 				db[params.table]
@@ -21,7 +21,7 @@ const eventList = () => {
 		})
 	})
 
-	ipcMain.handle("findOne", async (event, params) => {
+	ipcMain.handle("db-findOne", async (event, params) => {
 		return new Promise((resolve, reject) => {
 			if (db[params.table]) {
 				db[params.table]
@@ -40,7 +40,7 @@ const eventList = () => {
 		})
 	})
 
-	ipcMain.handle("insert", async (event, params) => {
+	ipcMain.handle("db-insert", async (event, params) => {
 		return new Promise((resolve, reject) => {
 			if (db[params.table]) {
 				db[params.table].insert(params.data, (err, res) => {
@@ -56,7 +56,7 @@ const eventList = () => {
 		})
 	})
 
-	ipcMain.handle("update", async (event, params) => {
+	ipcMain.handle("db-update", async (event, params) => {
 		return new Promise((resolve, reject) => {
 			if (db[params.table]) {
 				db[params.table].update(
@@ -76,7 +76,7 @@ const eventList = () => {
 		})
 	})
 
-	ipcMain.handle("remove", async (event, params) => {
+	ipcMain.handle("db-remove", async (event, params) => {
 		return new Promise((resolve, reject) => {
 			if (db[params.table]) {
 				db[params.table].remove(params.query, (err, res) => {
@@ -92,7 +92,7 @@ const eventList = () => {
 		})
 	})
 
-	ipcMain.handle("fix-db", async () => {
+	ipcMain.handle("db-fix", async () => {
 		return new Promise((resolve) => {
 			db.ReadProgress.find({}, (err, allProgress) => {
 				if (allProgress.length > 0) {

@@ -90,7 +90,7 @@ export default {
 		}
 
 		async function getUsers() {
-			store.state.users.userList = await ipcRenderer.invoke("find", {
+			store.state.users.userList = await ipcRenderer.invoke("db-find", {
 				table: "User",
 				query: {},
 				sort: { updatedAt: 1 },
@@ -102,12 +102,12 @@ export default {
 				message: `Seu progresso de leitura será perdido, deseja mesmo apagar o usuário ${user.name}? `,
 				callback: async (res) => {
 					if (res) {
-						await ipcRenderer.invoke("remove", {
+						await ipcRenderer.invoke("db-remove", {
 							table: "User",
 							query: { _id: user._id },
 						})
 
-						await ipcRenderer.invoke("remove", {
+						await ipcRenderer.invoke("db-remove", {
 							table: "ReadProgress",
 							query: { user_id: user._id },
 						})

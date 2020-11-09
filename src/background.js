@@ -3,7 +3,10 @@
 import { app, protocol, BrowserWindow } from "electron"
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib"
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer"
-import eventList from "@/events/eventList"
+import appEvents from "@/events/appEvents"
+import apiEvents from "@/events/apiEvents"
+import dbEvents from "@/events/dbEvents"
+
 const { autoUpdater } = require("electron-updater")
 
 const isDevelopment = process.env.NODE_ENV !== "production"
@@ -35,7 +38,14 @@ function createWindow() {
 			enableRemoteModule: true,
 		},
 	})
+
 	win.removeMenu()
+
+	//Activating custom events
+	appEvents()
+	apiEvents()
+	dbEvents()
+	//
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		// Load the url of the dev server if in development mode
@@ -54,8 +64,6 @@ function createWindow() {
 	win.on("closed", () => {
 		win = null
 	})
-
-	eventList.setWin(win)
 }
 
 // Quit when all windows are closed.

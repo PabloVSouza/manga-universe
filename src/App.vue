@@ -53,7 +53,7 @@ export default {
 		const store = useStore()
 		const router = useRouter()
 
-		ipcRenderer.invoke("fix-db")
+		ipcRenderer.invoke("db-fix")
 
 		router.push("/")
 

@@ -48,12 +48,12 @@ export default {
 		const registerUser = async () => {
 			if (state.user.name != "") {
 				if (props.editUser._id == undefined) {
-					await ipcRenderer.invoke("insert", {
+					await ipcRenderer.invoke("db-insert", {
 						table: "User",
 						data: JSON.parse(JSON.stringify(state.user)),
 					})
 				} else {
-					await ipcRenderer.invoke("update", {
+					await ipcRenderer.invoke("db-update", {
 						table: "User",
 						query: { _id: state.user._id },
 						data: JSON.parse(JSON.stringify(state.user)),

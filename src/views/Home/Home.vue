@@ -1,8 +1,8 @@
 <template>
 	<div id="Home" class="generalWindow">
 		<topMenu />
-		<mangaList v-if="reader.mangaList.length > 0" />
-		<mangaChapterSelection v-if="reader.mangaList.length > 0" />
+		<mangaList />
+		<mangaChapterSelection />
 		<transition name="fade">
 			<userMenu v-if="users.userMenu" />
 		</transition>

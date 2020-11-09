@@ -1,5 +1,5 @@
 <template>
-	<div id="mangaChapterSelection">
+	<div id="mangaChapterSelection" v-if="reader.activeManga !== undefined">
 		<div id="header">
 			<div id="generalContent">
 				<h1>{{ reader.activeManga.name }}</h1>
@@ -101,33 +101,37 @@ export default {
 		const users = computed(() => store.state.users)
 
 		function getProgress() {
-			ipcRenderer
-				.invoke("find", {
-					table: "ReadProgress",
-					query: {
-						manga_id: store.state.reader.activeManga._id,
-						user_id: store.state.users.activeUser._id,
-					},
-					sort: {},
-				})
-				.then((res) => {
-					store.state.reader.readProgress = res
-				})
+			if (reader.value.activeManga != undefined) {
+				ipcRenderer
+					.invoke("db-find", {
+						table: "ReadProgress",
+						query: {
+							manga_id: store.state.reader.activeManga._id,
+							user_id: store.state.users.activeUser._id,
+						},
+						sort: {},
+					})
+					.then((res) => {
+						store.state.reader.readProgress = res
+					})
+			}
 		}
 
 		function getChapters() {
-			ipcRenderer
-				.invoke("find", {
-					table: "Chapter",
-					query: {
-						manga_id: store.state.reader.activeManga._id,
-					},
-					sort: { number: 1 },
-				})
-				.then((res) => {
-					store.state.reader.chapterList = res
-					getProgress()
-				})
+			if (reader.value.activeManga != undefined) {
+				ipcRenderer
+					.invoke("db-find", {
+						table: "Chapter",
+						query: {
+							manga_id: store.state.reader.activeManga._id,
+						},
+						sort: { number: 1 },
+					})
+					.then((res) => {
+						store.state.reader.chapterList = res
+						getProgress()
+					})
+			}
 		}
 
 		getChapters()
@@ -187,7 +191,7 @@ export default {
 
 		const markAsUnread = (chapter) => {
 			ipcRenderer
-				.invoke("remove", {
+				.invoke("db-remove", {
 					table: "ReadProgress",
 					query: { chapter_id: chapter._id },
 				})
@@ -198,7 +202,7 @@ export default {
 
 		const markAsRead = (chapter) => {
 			ipcRenderer
-				.invoke("update", {
+				.invoke("db-update", {
 					table: "ReadProgress",
 					query: { chapter_id: chapter._id },
 					data: {
@@ -208,7 +212,7 @@ export default {
 				.then((res) => {
 					if (res == 0) {
 						ipcRenderer
-							.invoke("insert", {
+							.invoke("db-insert", {
 								table: "ReadProgress",
 								data: {
 									chapter_id: chapter._id,
