@@ -6,6 +6,8 @@ import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer"
 import appEvents from "@/events/appEvents"
 import apiEvents from "@/events/apiEvents"
 import dbEvents from "@/events/dbEvents"
+import path from "path"
+/* global __static */
 
 const { autoUpdater } = require("electron-updater")
 
@@ -23,12 +25,11 @@ protocol.registerSchemesAsPrivileged([
 function createWindow() {
 	// Create the browser window.
 	win = new BrowserWindow({
+		title: "Manga Universe",
 		width: 800,
 		height: 600,
 		minWidth: 600,
 		minHeight: 600,
-		title: "Manga Universe",
-
 		webPreferences: {
 			webSecurity: false,
 
@@ -37,6 +38,7 @@ function createWindow() {
 			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
 			enableRemoteModule: true,
 		},
+		icon: path.join(__static, "icon.png"),
 	})
 
 	win.removeMenu()

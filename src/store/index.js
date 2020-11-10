@@ -119,44 +119,41 @@ export default createStore({
 			ipcRenderer.on("change_route", (event, route) => {
 				router.push(route)
 			})
-
-			//Downloader Events
-
-			// ipcRenderer.on("finished_download", () => {
-			// 	ipcRenderer.send("get_available_mangas")
-			// })
-
-			// ipcRenderer.on("search_result", (event, result) => {
-			// 	this.state.downloader.mangaList = result.series
-			// })
-
-			// ipcRenderer.on("finished_queue", () => {
-			// 	this.state.downloader.downloadQueue = []
-			// })
-
-			// ipcRenderer.on("manga_description_result", (event, result) => {
-			// 	this.state.downloader.activeManga.description = result
-			// 	ipcRenderer.send(
-			// 		"get_chapters",
-			// 		this.state.downloader.activeManga.id_serie
-			// 	)
-			// })
-
-			// ipcRenderer.on("chapter_result", (event, result) => {
-			// 	this.state.downloader.chapterList = result
-			// 	this.state.downloader.activeComponent = "Detail"
-			// })
 		},
-		// getMangaDetail(event, param) {
-		// 	if (!param) {
-		// 		ipcRenderer.send(
-		// 			"get_manga_description",
-		// 			JSON.parse(JSON.stringify(this.state.downloader.activeManga))
-		// 		)
-		// 	} else {
-		// 		ipcRenderer.send("get_chapters", this.state.reader.activeManga.id_site)
-		// 	}
-		// },
+
+		getProgress() {
+			if (this.state.reader.activeManga != undefined) {
+				ipcRenderer
+					.invoke("db-find", {
+						table: "ReadProgress",
+						query: {
+							manga_id: this.state.reader.activeManga._id,
+							user_id: this.state.users.activeUser._id,
+						},
+						sort: {},
+					})
+					.then((res) => {
+						this.state.reader.readProgress = res
+					})
+			}
+		},
+
+		getChapters(context) {
+			if (this.state.reader.activeManga != undefined) {
+				ipcRenderer
+					.invoke("db-find", {
+						table: "Chapter",
+						query: {
+							manga_id: this.state.reader.activeManga._id,
+						},
+						sort: { number: 1 },
+					})
+					.then((res) => {
+						this.state.reader.chapterList = res
+						context.dispatch("getProgress")
+					})
+			}
+		},
 	},
 
 	modules: {},

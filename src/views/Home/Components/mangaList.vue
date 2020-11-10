@@ -45,7 +45,9 @@ export default {
 				})
 				.then((res) => {
 					store.state.reader.mangaList = res
-					store.state.reader.activeManga = res[0]
+					if (store.state.reader.activeManga._id == undefined) {
+						store.state.reader.activeManga = res[0]
+					}
 				})
 		}
 

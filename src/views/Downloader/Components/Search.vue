@@ -36,12 +36,14 @@ import _ from "lodash"
 
 export default {
 	name: "Search",
-	setup() {
+	props: ["downloadMore"],
+	setup(props) {
 		const store = useStore()
 
 		const state = reactive({
 			searchTerms: "",
 			isTyping: false,
+			downloadMore: props.downloadMore,
 		})
 
 		const downloader = computed(() => store.state.downloader)
@@ -54,22 +56,40 @@ export default {
 			}
 		}
 
-		const getManga = (manga) => {
-			downloader.value.activeManga = JSON.parse(JSON.stringify(manga))
-			ipcRenderer
-				.invoke(
-					"get_manga_description",
-					JSON.parse(JSON.stringify(downloader.value.activeManga))
-				)
-				.then((description) => {
-					downloader.value.activeManga.description = description
-					ipcRenderer
-						.invoke("get_chapters", JSON.parse(JSON.stringify(manga)))
-						.then((chapters) => {
-							downloader.value.activeManga.chapters = chapters
-							downloader.value.activeComponent = "Detail"
-						})
-				})
+		const getManga = (
+			manga = JSON.parse(JSON.stringify(store.state.reader.activeManga))
+		) => {
+			store.state.loading.active = true
+			if (!state.downloadMore) {
+				downloader.value.activeManga = JSON.parse(JSON.stringify(manga))
+				ipcRenderer
+					.invoke(
+						"get_manga_description",
+						JSON.parse(JSON.stringify(downloader.value.activeManga))
+					)
+					.then((description) => {
+						downloader.value.activeManga.description = description
+						ipcRenderer
+							.invoke("get_chapters", JSON.parse(JSON.stringify(manga)))
+							.then((chapters) => {
+								downloader.value.activeManga.chapters = chapters
+								downloader.value.activeComponent = "Detail"
+								store.state.loading.active = false
+							})
+					})
+			} else {
+				ipcRenderer
+					.invoke("get_chapters", JSON.parse(JSON.stringify(manga)))
+					.then((chapters) => {
+						downloader.value.activeManga.chapters = chapters
+						downloader.value.activeComponent = "Detail"
+						store.state.loading.active = false
+					})
+			}
+		}
+
+		if (state.downloadMore) {
+			getManga()
 		}
 
 		watch(

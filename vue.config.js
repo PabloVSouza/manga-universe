@@ -4,9 +4,6 @@ module.exports = {
 			nodeIntegration: true,
 			builderOptions: {
 				productName: "Manga Universe",
-				win: {
-					icon: "./icon.ico",
-				},
 				publish: [
 					{
 						provider: "github",

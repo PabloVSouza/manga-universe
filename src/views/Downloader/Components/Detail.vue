@@ -163,11 +163,13 @@ export default {
 				}
 
 				if (exist === 1) {
-					exist = await ipcRenderer.invoke("db-find", {
+					exist = await ipcRenderer.invoke("db-findOne", {
 						table: "Manga",
 						query: { name: JSON.parse(JSON.stringify(mangaInfo.value.name)) },
 					})
 				}
+
+				store.state.reader.activeManga = JSON.parse(JSON.stringify(exist))
 
 				const chapterWriteData = {
 					manga_id: exist._id,
@@ -183,6 +185,9 @@ export default {
 					data: JSON.parse(JSON.stringify(chapterWriteData)),
 				})
 			}
+
+			store.state.downloader.downloadQueue = []
+			store.dispatch("getChapters")
 		}
 
 		const alreadyDownloaded = (chapter) => {

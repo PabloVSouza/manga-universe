@@ -79,12 +79,14 @@ const eventList = () => {
 			let chaptersList = []
 			let currentPage = 1
 
+			const id = manga.id_site == undefined ? manga.id_serie : manga.id_site
+
 			getChapterPages(currentPage)
 
 			function getChapterPages(page) {
 				axios
 					.get(
-						`${siteUrl}/series/chapters_list.json?page=${page}&id_serie=${manga.id_serie}`
+						`${siteUrl}/series/chapters_list.json?page=${page}&id_serie=${id}`
 					)
 					.then((res) => {
 						let chapters = res.data.chapters

@@ -44,9 +44,12 @@ export default {
 		const downloader = computed(() => store.state.downloader)
 
 		const closeDownloader = () => {
-			if (store.state.downloader.activeComponent == "Detail") {
-				store.state.downloader.activeComponent = "Search"
-				if (state.downloadMore) {
+			if (downloader.value.activeComponent == "Detail") {
+				if (!state.downloadMore) {
+					downloader.value.activeComponent = "Search"
+				} else {
+					state.downloadMore = false
+					downloader.value.activeComponent = "Search"
 					router.push("/")
 				}
 			} else {

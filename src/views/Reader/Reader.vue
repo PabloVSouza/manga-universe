@@ -155,19 +155,35 @@ export default {
 			}
 		}
 
-		const changePage = (factor) => {
+		const changePage = async (factor) => {
 			if (
 				factor + state.currentPage >= 0 &&
 				factor + state.currentPage <=
 					state.reader.activeChapter.pages.length - 1
 			) {
 				state.currentPage += factor
-				ipcRenderer.send("update_progress", {
+
+				const writeData = {
 					chapter_id: state.reader.activeChapter._id,
 					user_id: state.users.activeUser._id,
 					totalPages: state.reader.activeChapter.pages.length,
 					currentPage: state.currentPage + 1,
+				}
+
+				let exist = await ipcRenderer.invoke("db-update", {
+					table: "ReadProgress",
+					query: { chapter_id: state.reader.activeChapter._id },
+					data: writeData,
 				})
+
+				if (exist === 0) {
+					exist = await ipcRenderer.invoke("db-insert", {
+						table: "ReadProgress",
+						data: writeData,
+					})
+				}
+
+				store.dispatch("getProgress")
 			} else {
 				if (factor + state.currentPage < 0) {
 					const currentChapterIndex = state.reader.chapterList.findIndex(

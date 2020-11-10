@@ -100,41 +100,7 @@ export default {
 		const reader = computed(() => store.state.reader)
 		const users = computed(() => store.state.users)
 
-		function getProgress() {
-			if (reader.value.activeManga != undefined) {
-				ipcRenderer
-					.invoke("db-find", {
-						table: "ReadProgress",
-						query: {
-							manga_id: store.state.reader.activeManga._id,
-							user_id: store.state.users.activeUser._id,
-						},
-						sort: {},
-					})
-					.then((res) => {
-						store.state.reader.readProgress = res
-					})
-			}
-		}
-
-		function getChapters() {
-			if (reader.value.activeManga != undefined) {
-				ipcRenderer
-					.invoke("db-find", {
-						table: "Chapter",
-						query: {
-							manga_id: store.state.reader.activeManga._id,
-						},
-						sort: { number: 1 },
-					})
-					.then((res) => {
-						store.state.reader.chapterList = res
-						getProgress()
-					})
-			}
-		}
-
-		getChapters()
+		store.dispatch("getChapters")
 
 		const totalProgress = computed(() => {
 			let total = []
@@ -196,7 +162,7 @@ export default {
 					query: { chapter_id: chapter._id },
 				})
 				.then(() => {
-					getProgress()
+					store.dispatch("getProgress")
 				})
 		}
 
@@ -223,10 +189,10 @@ export default {
 								},
 							})
 							.then(() => {
-								getProgress()
+								store.dispatch("getProgress")
 							})
 					} else {
-						getProgress()
+						store.dispatch("getProgress")
 					}
 				})
 		}
@@ -254,15 +220,13 @@ export default {
 		}
 
 		const downloadMore = () => {
-			store.dispatch("getMangaDetail", true)
-
 			router.push("/downloader/true")
 		}
 
 		watch(
 			() => reader.value.activeManga,
 			() => {
-				getChapters()
+				store.dispatch("getChapters")
 			}
 		)
 
