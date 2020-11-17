@@ -133,7 +133,7 @@ export default createStore({
 						sort: {},
 					})
 					.then((res) => {
-						this.state.reader.readProgress = res
+						this.state.reader.readProgress = JSON.parse(JSON.stringify(res))
 					})
 			}
 		},

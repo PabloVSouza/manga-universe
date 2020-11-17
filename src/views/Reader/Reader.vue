@@ -118,7 +118,7 @@ export default {
 						app.value.folder,
 						"mangas",
 						filterFolderName,
-						String(state.reader.activeChapter.number),
+						String(reader.value.activeChapter.number),
 						reader.value.activeChapter.pages[state.currentPage]
 					)
 				)}')`
@@ -165,6 +165,7 @@ export default {
 				state.currentPage += factor
 
 				const writeData = {
+					manga_id: reader.value.activeManga._id,
 					chapter_id: reader.value.activeChapter._id,
 					user_id: users.value.activeUser._id,
 					totalPages: reader.value.activeChapter.pages.length,
