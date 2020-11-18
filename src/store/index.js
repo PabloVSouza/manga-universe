@@ -31,10 +31,10 @@ export default createStore({
 			activeComponent: "Search",
 		},
 		reader: {
-			mangaList: [],
-			chapterList: [],
 			activeManga: {},
 			activeChapter: {},
+			mangaList: [],
+			chapterList: [],
 			readProgress: [],
 		},
 		users: {
@@ -119,101 +119,40 @@ export default createStore({
 			ipcRenderer.on("change_route", (event, route) => {
 				router.push(route)
 			})
-
-			//User Events
-
-			ipcRenderer.send("get_available_users")
-
-			ipcRenderer.on("created_user", () => {
-				ipcRenderer.send("get_available_users")
-				this.state.users.createUser = false
-			})
-
-			ipcRenderer.on("updated_users", () => {
-				this.state.users.createUser = false
-				ipcRenderer.send("get_available_users")
-			})
-
-			ipcRenderer.on("removed_user", () => {
-				ipcRenderer.send("get_available_users")
-			})
-
-			ipcRenderer.on("available_users", (event, result) => {
-				this.state.users.userList = result
-			})
-
-			//Reader Events
-
-			ipcRenderer.send("get_available_mangas")
-
-			ipcRenderer.on("available_mangas", (event, result) => {
-				this.state.reader.mangaList = result
-				if (this.state.reader.mangaList.length > 0) {
-					if (this.state.reader.activeManga._id == undefined) {
-						this.state.reader.activeManga = this.state.reader.mangaList[0]
-					}
-					ipcRenderer.send(
-						"get_available_chapters",
-						this.state.reader.activeManga._id
-					)
-				}
-			})
-
-			ipcRenderer.on("available_chapters", (event, result) => {
-				this.state.reader.chapterList = result
-			})
-
-			ipcRenderer.on("read_progress", (event, result) => {
-				this.state.reader.readProgress = result
-			})
-
-			ipcRenderer.on("updated_progress", () => {
-				ipcRenderer.send("get_read_progress", {
-					user_id: this.state.users.activeUser._id,
-				})
-			})
-
-			//Downloader Events
-
-			ipcRenderer.on("finished_download", () => {
-				ipcRenderer.send("get_available_mangas")
-			})
-
-			ipcRenderer.on("search_result", (event, result) => {
-				this.state.downloader.mangaList = result.series
-			})
-
-			ipcRenderer.on("finished_queue", () => {
-				this.state.downloader.downloadQueue = []
-			})
-
-			ipcRenderer.on("manga_description_result", (event, result) => {
-				this.state.downloader.activeManga.description = result
-				ipcRenderer.send(
-					"get_chapters",
-					this.state.downloader.activeManga.id_serie
-				)
-			})
-
-			ipcRenderer.on("chapter_result", (event, result) => {
-				this.state.downloader.chapterList = result
-				this.state.downloader.activeComponent = "Detail"
-			})
 		},
-		getMangaDetail(event, param) {
-			if (!param) {
-				ipcRenderer.send(
-					"get_manga_description",
-					JSON.parse(JSON.stringify(this.state.downloader.activeManga))
-				)
-			} else {
-				ipcRenderer.send("get_chapters", this.state.reader.activeManga.id_site)
+
+		getProgress() {
+			if (this.state.reader.activeManga != undefined) {
+				ipcRenderer
+					.invoke("db-find", {
+						table: "ReadProgress",
+						query: {
+							manga_id: this.state.reader.activeManga._id,
+							user_id: this.state.users.activeUser._id,
+						},
+						sort: {},
+					})
+					.then((res) => {
+						this.state.reader.readProgress = JSON.parse(JSON.stringify(res))
+					})
 			}
 		},
-		getProgress() {
-			ipcRenderer.send("get_read_progress", {
-				user_id: this.state.users.activeUser._id,
-			})
+
+		getChapters(context) {
+			if (this.state.reader.activeManga != undefined) {
+				ipcRenderer
+					.invoke("db-find", {
+						table: "Chapter",
+						query: {
+							manga_id: this.state.reader.activeManga._id,
+						},
+						sort: { number: 1 },
+					})
+					.then((res) => {
+						this.state.reader.chapterList = res
+						context.dispatch("getProgress")
+					})
+			}
 		},
 	},
 

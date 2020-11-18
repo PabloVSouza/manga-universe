@@ -41,10 +41,11 @@ export default {
 				zoomFactor: 2,
 			},
 			zoomWindow: {},
-			reader: store.state.reader,
-			users: store.state.users,
-			app: store.state.app,
 		})
+
+		const reader = computed(() => store.state.reader)
+		const users = computed(() => store.state.users)
+		const app = computed(() => store.state.app)
 
 		const windowPosition = computed(() => {
 			let res = {}
@@ -98,10 +99,10 @@ export default {
 		const changeTitle = () => {
 			ipcRenderer.send(
 				"change_window_title",
-				`| ${state.reader.activeManga.name} - Capítulo ${
-					state.reader.activeChapter.number
+				`| ${reader.value.activeManga.name} - Capítulo ${
+					reader.value.activeChapter.number
 				} - Página ${state.currentPage + 1}/${
-					state.reader.activeChapter.pages.length
+					reader.value.activeChapter.pages.length
 				}`
 			)
 		}
@@ -109,16 +110,16 @@ export default {
 		const imgDirectory = () => {
 			let directory = ""
 
-			if (state.reader.activeManga._id != undefined) {
-				const filterFolderName = state.reader.activeManga.name.replace(":", "-")
+			if (reader.value.activeManga._id != undefined) {
+				const filterFolderName = reader.value.activeManga.name.replace(":", "-")
 
 				directory = `url('file:///${encodeURI(
 					path.join(
-						state.app.folder,
+						app.value.folder,
 						"mangas",
 						filterFolderName,
-						String(state.reader.activeChapter.number),
-						state.reader.activeChapter.pages[state.currentPage]
+						String(reader.value.activeChapter.number),
+						reader.value.activeChapter.pages[state.currentPage]
 					)
 				)}')`
 			}
@@ -127,50 +128,75 @@ export default {
 			return directory
 		}
 
-		const handleKeys = (key) => {
-			if (key.key == "ArrowLeft") {
-				if (!state.users.activeUser.reverse) {
-					changePage(-1)
-				} else {
-					changePage(1)
-				}
+		const handleKeys = (e) => {
+			const keys = {
+				ArrowLeft: () => {
+					if (!users.value.activeUser.reverse) {
+						changePage(-1)
+					} else {
+						changePage(1)
+					}
+				},
+
+				ArrowRight: () => {
+					if (!users.value.activeUser.reverse) {
+						changePage(1)
+					} else {
+						changePage(-1)
+					}
+				},
+
+				Escape: () => {
+					router.push("/")
+				},
 			}
-			if (key.key == "ArrowRight") {
-				if (!state.users.activeUser.reverse) {
-					changePage(1)
-				} else {
-					changePage(-1)
-				}
-			}
-			if (key.key == "Escape") {
-				router.push("/")
+
+			if (keys[e.key]) {
+				keys[e.key]()
 			}
 		}
 
-		const changePage = (factor) => {
+		const changePage = async (factor) => {
 			if (
 				factor + state.currentPage >= 0 &&
 				factor + state.currentPage <=
-					state.reader.activeChapter.pages.length - 1
+					reader.value.activeChapter.pages.length - 1
 			) {
 				state.currentPage += factor
-				ipcRenderer.send("update_progress", {
-					chapter_id: state.reader.activeChapter._id,
-					user_id: state.users.activeUser._id,
-					totalPages: state.reader.activeChapter.pages.length,
+
+				const writeData = {
+					manga_id: reader.value.activeManga._id,
+					chapter_id: reader.value.activeChapter._id,
+					user_id: users.value.activeUser._id,
+					totalPages: reader.value.activeChapter.pages.length,
 					currentPage: state.currentPage + 1,
+				}
+
+				let exist = await ipcRenderer.invoke("db-update", {
+					table: "ReadProgress",
+					query: { chapter_id: reader.value.activeChapter._id },
+					data: writeData,
 				})
+
+				if (exist === 0) {
+					exist = await ipcRenderer.invoke("db-insert", {
+						table: "ReadProgress",
+						data: writeData,
+					})
+				}
+
+				store.dispatch("getProgress")
 			} else {
 				if (factor + state.currentPage < 0) {
-					const currentChapterIndex = state.reader.chapterList.findIndex(
-						(chapter) => chapter._id == state.reader.activeChapter._id
+					const currentChapterIndex = reader.value.chapterList.findIndex(
+						(chapter) => chapter._id == reader.value.activeChapter._id
 					)
 
 					if (currentChapterIndex > 0) {
-						state.reader.activeChapter =
-							state.reader.chapterList[currentChapterIndex - 1]
+						reader.value.activeChapter =
+							reader.value.chapterList[currentChapterIndex - 1]
 
-						state.currentPage = state.reader.activeChapter.pages.length - 1
+						state.currentPage = reader.value.activeChapter.pages.length - 1
 					} else {
 						router.push("/")
 					}
@@ -178,16 +204,16 @@ export default {
 
 				if (
 					factor + state.currentPage >
-					state.reader.activeChapter.pages.length - 1
+					reader.value.activeChapter.pages.length - 1
 				) {
-					const currentChapterIndex = state.reader.chapterList.findIndex(
-						(chapter) => chapter._id == state.reader.activeChapter._id
+					const currentChapterIndex = reader.value.chapterList.findIndex(
+						(chapter) => chapter._id == reader.value.activeChapter._id
 					)
 
-					if (currentChapterIndex != state.reader.chapterList.length - 1) {
-						if (currentChapterIndex < state.reader.chapterList.length - 1) {
-							state.reader.activeChapter =
-								state.reader.chapterList[currentChapterIndex + 1]
+					if (currentChapterIndex != reader.value.chapterList.length - 1) {
+						if (currentChapterIndex < reader.value.chapterList.length - 1) {
+							reader.value.activeChapter =
+								reader.value.chapterList[currentChapterIndex + 1]
 							state.currentPage = 0
 						}
 					} else {
@@ -199,8 +225,8 @@ export default {
 
 		changeTitle()
 
-		const currentProgress = state.reader.readProgress.find(
-			(progress) => progress.chapter_id == state.reader.activeChapter._id
+		const currentProgress = reader.value.readProgress.find(
+			(progress) => progress.chapter_id == reader.value.activeChapter._id
 		)
 
 		if (currentProgress) {
@@ -225,6 +251,9 @@ export default {
 
 		return {
 			state,
+			reader,
+			app,
+			users,
 			windowPosition,
 			setMousePos,
 			changeZoomFactor,

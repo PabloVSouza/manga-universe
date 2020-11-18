@@ -1,6 +1,10 @@
 <template>
 	<div id="Users" class="generalWindow">
-		<CreateUser v-if="state.users.createUser" :editUser="state.userEdit" />
+		<CreateUser
+			v-if="state.users.createUser"
+			:editUser="state.userEdit"
+			@close-form="closeCreateUser()"
+		/>
 		<template v-if="!state.users.createUser">
 			<h1>{{ $lang.Users.headerText }}</h1>
 			<div id="userArea">
@@ -57,6 +61,8 @@ export default {
 	components: { CreateUser },
 
 	setup() {
+		getUsers()
+
 		const store = useStore()
 		const router = useRouter()
 		const state = reactive({
@@ -70,8 +76,6 @@ export default {
 
 		const selectUser = (user) => {
 			state.users.activeUser = user
-			store.dispatch("getProgress")
-
 			router.push("/")
 		}
 
@@ -80,12 +84,35 @@ export default {
 			state.users.createUser = true
 		}
 
-		const deleteUser = (user) => {
+		async function closeCreateUser() {
+			await getUsers()
+			store.state.users.createUser = false
+		}
+
+		async function getUsers() {
+			store.state.users.userList = await ipcRenderer.invoke("db-find", {
+				table: "User",
+				query: {},
+				sort: { updatedAt: 1 },
+			})
+		}
+
+		function deleteUser(user) {
 			vex.dialog.confirm({
 				message: `Seu progresso de leitura será perdido, deseja mesmo apagar o usuário ${user.name}? `,
-				callback: (res) => {
+				callback: async (res) => {
 					if (res) {
-						ipcRenderer.send("remove_user", JSON.parse(JSON.stringify(user)))
+						await ipcRenderer.invoke("db-remove", {
+							table: "User",
+							query: { _id: user._id },
+						})
+
+						await ipcRenderer.invoke("db-remove", {
+							table: "ReadProgress",
+							query: { user_id: user._id },
+						})
+
+						getUsers()
 					}
 				},
 			})
@@ -108,6 +135,7 @@ export default {
 			selectUser,
 			editUser,
 			deleteUser,
+			closeCreateUser,
 		}
 	},
 }

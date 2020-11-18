@@ -1,19 +1,19 @@
 <template>
-	<div id="mangaChapterSelection">
+	<div id="mangaChapterSelection" v-if="reader.activeManga !== undefined">
 		<div id="header">
 			<div id="generalContent">
-				<h1>{{ state.reader.activeManga.name }}</h1>
+				<h1>{{ reader.activeManga.name }}</h1>
 				<p>
 					<label>{{ $lang.Home.mangaChapterSelection.author }}:</label>
-					{{ state.reader.activeManga.author }}
+					{{ reader.activeManga.author }}
 				</p>
 				<p>
 					<label>{{ $lang.Home.mangaChapterSelection.artist }}:</label>
-					{{ state.reader.activeManga.artist }}
+					{{ reader.activeManga.artist }}
 				</p>
 				<p>
 					<label>{{ $lang.Home.mangaChapterSelection.genre }}:</label>
-					<template v-for="categorie in state.reader.activeManga.genres">
+					<template v-for="categorie in reader.activeManga.genres">
 						{{ categorie.name }},
 					</template>
 				</p>
@@ -21,7 +21,7 @@
 			<div id="description">
 				<p>
 					<label>{{ $lang.Home.mangaChapterSelection.description }}:</label>
-					{{ state.reader.activeManga.description }}
+					{{ reader.activeManga.description }}
 				</p>
 			</div>
 			<img :src="coverDirectory" alt="" />
@@ -51,7 +51,7 @@
 				<table>
 					<tbody>
 						<tr
-							v-for="chapter in state.reader.chapterList"
+							v-for="chapter in reader.chapterList"
 							:key="chapter._id"
 							@dblclick.prevent="readChapter(chapter)"
 							:title="$lang.Home.mangaChapterSelection.titleDoubleClickRead"
@@ -84,7 +84,7 @@
 <script>
 const { ipcRenderer } = require("electron")
 
-import { reactive, computed } from "vue"
+import { computed, watch } from "vue"
 import { useStore } from "vuex"
 import { useRouter } from "vue-router"
 
@@ -96,22 +96,21 @@ export default {
 	setup() {
 		const store = useStore()
 		const router = useRouter()
+		const app = computed(() => store.state.app)
+		const reader = computed(() => store.state.reader)
+		const users = computed(() => store.state.users)
 
-		const state = reactive({
-			reader: store.state.reader,
-			users: store.state.users,
-			app: store.state.app,
-		})
+		store.dispatch("getChapters")
 
 		const totalProgress = computed(() => {
 			let total = []
-			for (const chapter of state.reader.chapterList) {
+			for (const chapter of reader.value.chapterList) {
 				total.push(chapterProgress(chapter))
 			}
 
 			const totalSum = total.reduce((value, next) => value + next, 0)
 
-			const all = state.reader.chapterList.length * 100
+			const all = reader.value.chapterList.length * 100
 
 			return Math.round((100 / all) * totalSum)
 		})
@@ -119,15 +118,15 @@ export default {
 		const coverDirectory = computed(() => {
 			let directory = ""
 
-			if (state.reader.activeManga._id != undefined) {
-				const filterFolderName = state.reader.activeManga.name.replace(":", "-")
+			if (reader.value.activeManga._id != undefined) {
+				const filterFolderName = reader.value.activeManga.name.replace(":", "-")
 
 				directory = `file:///${encodeURI(
 					path.join(
-						state.app.folder,
+						app.value.folder,
 						"mangas",
 						filterFolderName,
-						state.reader.activeManga.cover
+						reader.value.activeManga.cover
 					)
 				)}`
 			}
@@ -136,12 +135,12 @@ export default {
 		})
 
 		const readChapter = (chapter) => {
-			state.reader.activeChapter = chapter
+			store.state.reader.activeChapter = chapter
 			router.push("/reader")
 		}
 
 		const chapterProgress = (chapter) => {
-			const progress = state.reader.readProgress.find(
+			const progress = reader.value.readProgress.find(
 				(p) => p.chapter_id == chapter._id
 			)
 
@@ -157,28 +156,52 @@ export default {
 		}
 
 		const markAsUnread = (chapter) => {
-			ipcRenderer.send("update_progress", {
-				chapter_id: chapter._id,
-				user_id: state.users.activeUser._id,
-				totalPages: chapter.pages.length,
-				currentPage: 1,
-			})
+			ipcRenderer
+				.invoke("db-remove", {
+					table: "ReadProgress",
+					query: { chapter_id: chapter._id },
+				})
+				.then(() => {
+					store.dispatch("getProgress")
+				})
 		}
 
 		const markAsRead = (chapter) => {
-			ipcRenderer.send("update_progress", {
-				chapter_id: chapter._id,
-				user_id: state.users.activeUser._id,
-				totalPages: chapter.pages.length,
-				currentPage: chapter.pages.length,
-			})
+			ipcRenderer
+				.invoke("db-update", {
+					table: "ReadProgress",
+					query: { chapter_id: chapter._id },
+					data: {
+						currentPage: chapter.pages.length,
+					},
+				})
+				.then((res) => {
+					if (res == 0) {
+						ipcRenderer
+							.invoke("db-insert", {
+								table: "ReadProgress",
+								data: {
+									chapter_id: chapter._id,
+									user_id: users.value.activeUser._id,
+									totalPages: chapter.pages.length,
+									currentPage: chapter.pages.length,
+									manga_id: reader.value.activeManga._id,
+								},
+							})
+							.then(() => {
+								store.dispatch("getProgress")
+							})
+					} else {
+						store.dispatch("getProgress")
+					}
+				})
 		}
 
 		const continueReading = () => {
 			let lastRead
 
-			for (const c of state.reader.chapterList) {
-				const progress = state.reader.readProgress.find(
+			for (const c of reader.value.chapterList) {
+				const progress = reader.value.readProgress.find(
 					(p) => p.chapter_id == c._id
 				)
 
@@ -188,22 +211,27 @@ export default {
 			}
 
 			if (lastRead) {
-				state.reader.activeChapter = lastRead
+				store.state.reader.activeChapter = lastRead
 				router.push("/reader")
 			} else {
-				state.reader.activeChapter = state.reader.chapterList[0]
+				store.state.reader.activeChapter = reader.value.chapterList[0]
 				router.push("/reader")
 			}
 		}
 
 		const downloadMore = () => {
-			store.dispatch("getMangaDetail", true)
-
 			router.push("/downloader/true")
 		}
 
+		watch(
+			() => reader.value.activeManga,
+			() => {
+				store.dispatch("getChapters")
+			}
+		)
+
 		return {
-			state,
+			reader,
 			coverDirectory,
 			readChapter,
 			chapterProgress,

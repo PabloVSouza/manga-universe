@@ -1,6 +1,4 @@
-import { ipcMain } from "electron"
-import apiInterface from "./apiInterface"
-import dbInterface from "./dbInterface"
+import { ipcMain, BrowserWindow } from "electron"
 
 const { app } = require("electron")
 const fs = require("fs")
@@ -8,14 +6,9 @@ import path from "path"
 
 let win
 
-const setWin = (extWin) => {
-	win = extWin
-	apiInterface.setWin(extWin)
-	dbInterface.setWin(extWin)
-	eventList()
-}
-
 const eventList = () => {
+	win = BrowserWindow.getAllWindows()[0]
+
 	ipcMain.on("change_window_title", (event, param) => {
 		win.title = `Manga Universe v${app.getVersion()} ${param}`
 	})
@@ -120,9 +113,4 @@ const eventList = () => {
 	})
 }
 
-const modules = {
-	setWin,
-	eventList,
-}
-
-export default modules
+export default eventList

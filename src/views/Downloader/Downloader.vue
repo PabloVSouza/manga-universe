@@ -3,7 +3,7 @@
 		id="Downloader"
 		class="generalWindow"
 		:style="
-			state.downloader.activeComponent == 'Detail'
+			downloader.activeComponent == 'Detail'
 				? { backgroundColor: 'rgba(255,255,255,0.6)' }
 				: {}
 		"
@@ -13,7 +13,7 @@
 		</button>
 		<transition name="fade">
 			<component
-				:is="$store.state.downloader.activeComponent"
+				:is="downloader.activeComponent"
 				:downloadMore="state.downloadMore"
 			/>
 		</transition>
@@ -24,7 +24,7 @@
 import Detail from "./Components/Detail"
 import Search from "./Components/Search"
 
-import { reactive } from "vue"
+import { reactive, computed } from "vue"
 import { useStore } from "vuex"
 import { useRoute, useRouter } from "vue-router"
 
@@ -39,13 +39,17 @@ export default {
 
 		const state = reactive({
 			downloadMore: route.params.downloadMore,
-			downloader: store.state.downloader,
 		})
 
+		const downloader = computed(() => store.state.downloader)
+
 		const closeDownloader = () => {
-			if (store.state.downloader.activeComponent == "Detail") {
-				store.state.downloader.activeComponent = "Search"
-				if (state.downloadMore) {
+			if (downloader.value.activeComponent == "Detail") {
+				if (!state.downloadMore) {
+					downloader.value.activeComponent = "Search"
+				} else {
+					state.downloadMore = false
+					downloader.value.activeComponent = "Search"
 					router.push("/")
 				}
 			} else {
@@ -56,6 +60,7 @@ export default {
 		return {
 			state,
 			closeDownloader,
+			downloader,
 		}
 	},
 }
