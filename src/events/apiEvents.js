@@ -115,7 +115,15 @@ const eventList = () => {
 
 		win.webContents.send("loading_message", `Acessando a API`)
 
-		const coverName = await downloadCover(mangaData, dirData)
+		let coverName
+
+		if (mangaData._id == undefined)
+			coverName = await downloadCover(mangaData, dirData)
+		else {
+			coverName = decodeURI(mangaData.cover).substring(
+				decodeURI(mangaData.cover).lastIndexOf("\\") + 1
+			)
+		}
 
 		let { id_release, link } = chapter.releases[
 			Object.getOwnPropertyNames(chapter.releases)[0]
@@ -264,40 +272,5 @@ const downloadPage = (page, dirData) => {
 			})
 	})
 }
-
-// async function recordManga(data) {
-// 	return new Promise((resolve) => {
-// 		db.Manga.findOne({ name: data.name }, (err, findManga) => {
-// 			if (findManga) {
-// 				if (findManga.id_site != undefined) {
-// 					data.id_site = findManga.id_site
-// 				}
-// 				db.Manga.update({ _id: findManga._id }, { $set: data })
-// 				resolve(findManga)
-// 			} else {
-// 				db.Manga.insert(data, (error, newManga) => {
-// 					resolve(newManga)
-// 				})
-// 			}
-// 		})
-// 	})
-// }
-
-// function recordChapter(data) {
-// 	return new Promise((resolve) => {
-// 		db.Chapter.findOne(
-// 			{ number: data.number, manga_id: data.manga_id },
-// 			(err, findChapter) => {
-// 				if (findChapter) {
-// 					resolve(findChapter)
-// 				} else {
-// 					db.Chapter.insert(data, (err, newChapter) => {
-// 						resolve(newChapter)
-// 					})
-// 				}
-// 			}
-// 		)
-// 	})
-// }
 
 export default eventList
