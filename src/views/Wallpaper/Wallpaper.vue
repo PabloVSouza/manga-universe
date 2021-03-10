@@ -72,6 +72,8 @@ export default {
 			file: "",
 		})
 
+		store.dispatch("getWallpaperList")
+
 		const activeWallpaper = computed(() => {
 			return store.state.app.wallpaper.active
 		})
@@ -81,13 +83,15 @@ export default {
 		}
 
 		const processFile = (e) => {
-			ipcRenderer.send("new_wallpaper", e.target.files[0].path)
+			ipcRenderer.invoke("new_wallpaper", e.target.files[0].path).then(() => {
+				store.dispatch("getWallpaperList")
+			})
 		}
 
 		watch(
 			() => [state.app.wallpaper.active, state.app.wallpaper.mode],
 			() => {
-				ipcRenderer.send(
+				ipcRenderer.invoke(
 					"write_wallpaper_settings",
 					JSON.stringify(state.app.wallpaper)
 				)

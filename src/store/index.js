@@ -13,7 +13,6 @@ export default createStore({
 				mode: "cover",
 			},
 			folder: "",
-			version: "",
 		},
 		loading: {
 			active: false,
@@ -71,28 +70,18 @@ export default createStore({
 		setupIpc() {
 			//App Events
 
-			ipcRenderer.send("get_wallpaper_settings")
-			ipcRenderer.on("wallpaper_settings", (event, settings) => {
-				if (this.state.app.wallpaper.active == "") {
-					this.state.app.wallpaper = JSON.parse(JSON.stringify(settings))
-				}
+			ipcRenderer.invoke("get_app_folder").then((res) => {
+				this.state.app.folder = res
 			})
 
-			ipcRenderer.send("get_wallpaper_list")
-			ipcRenderer.on("wallpaper_list", (event, list) => {
-				this.state.app.wallpaper.list = list
+			ipcRenderer.invoke("get_wallpaper_info").then((res) => {
+				this.state.app.wallpaper = res
 			})
 
-			ipcRenderer.send("get_app_version")
-
-			ipcRenderer.on("app_version", (event, version) => {
-				this.state.app.version = version
-			})
-
-			ipcRenderer.send("get_app_folder")
-
-			ipcRenderer.on("app_folder", (event, dir) => {
-				this.state.app.folder = dir
+			ipcRenderer.on("display_message", (event, msg) => {
+				vex.dialog.alert({
+					message: msg,
+				})
 			})
 
 			ipcRenderer.on("connection_error", () => {
@@ -118,6 +107,12 @@ export default createStore({
 
 			ipcRenderer.on("change_route", (event, route) => {
 				router.push(route)
+			})
+		},
+
+		getWallpaperList() {
+			ipcRenderer.invoke("get_wallpaper_list").then((res) => {
+				this.state.app.wallpaper.list = JSON.parse(JSON.stringify(res))
 			})
 		},
 
