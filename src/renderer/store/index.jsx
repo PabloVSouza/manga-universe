@@ -5,7 +5,7 @@ const initialState = {
 	loggedUser: {},
 }
 
-const reducer = (state = initialState, action:any) => {
+const reducer = (state = initialState, action) => {
 	if (action.type === "SET_LOADING") {
 		return Object.assign({}, state, {
 			loading: action.payload.value,

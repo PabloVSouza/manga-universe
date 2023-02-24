@@ -6,7 +6,7 @@ import Routes from 'routes'
 
 import style from './style.module.scss'
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <HashRouter>
       <div id={style.Base}>

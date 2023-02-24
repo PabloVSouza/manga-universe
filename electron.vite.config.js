@@ -6,7 +6,7 @@ export default defineConfig({
   main: {
     build: {
       lib: {
-        entry: 'src/electron/main/index.ts'
+        entry: 'src/electron/main/index.js'
       }
     },
     plugins: [externalizeDepsPlugin()]
@@ -14,12 +14,12 @@ export default defineConfig({
   preload: {
     build: {
       lib: {
-        entry: 'src/electron/preload/index.ts'
+        entry: 'src/electron/preload/index.js'
       }
     },
     plugins: [externalizeDepsPlugin()]
   },
-  renderer: {
+   renderer: {
     css: {
       preprocessorOptions: {
         scss: {
@@ -29,7 +29,6 @@ export default defineConfig({
     },
     plugins: [react()],
     resolve: {
-      // alias: [{ find: 'pages', replacement: './src/pages' }]
       alias: {
         '@': resolve('src/renderer/'),
         assets: resolve('src/renderer/assets'),
