@@ -1,7 +1,9 @@
+import Window from 'components/Window'
+
 import style from './style.module.scss'
 
 const Home = () => {
-  return <div className={style.Home}>Olá</div>
+  return <Window className={style.Home}>Olá</Window>
 }
 
 export default Home

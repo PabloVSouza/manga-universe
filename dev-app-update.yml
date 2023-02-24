@@ -1,3 +1,3 @@
 provider: generic
 url: https://example.com/auto-updates
-updaterCacheDirName: test-electron-updater
+updaterCacheDirName: manga-universe-updater

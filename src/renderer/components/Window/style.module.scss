@@ -1,2 +1,13 @@
 .Window {
+  position: absolute;
+  background-color: $blur-white;
+  min-width: 100px;
+  min-height: 100px;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: $default-shadow;
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
