@@ -1,25 +1,34 @@
-# MangaUniverse
+# test-electron
 
-Aplicativo em ElectronJS e React para Leitura e Download de mangás, com controle de progresso de leitura por usuários.
+An Electron application with React and TypeScript
 
-## Setup do Projeto:
+## Recommended IDE Setup
 
-### Executar o comando:
+- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
-```
-yarn
-```
+## Project Setup
 
-### Para iniciar servidor para desenvolvimento com Hot Reload:
+### Install
 
-```
-yarn start
+```bash
+$ npm install
 ```
 
-### Para compilar e gerar executáveis:
+### Development
 
-```
-yarn make
+```bash
+$ npm run dev
 ```
 
-Aplicativo feito como forma de estudo das plataformas utilizadas, e não deve ser utilizado de forma comercial.
+### Build
+
+```bash
+# For windows
+$ npm run build:win
+
+# For macOS
+$ npm run build:mac
+
+# For Linux
+$ npm run build:linux
+```

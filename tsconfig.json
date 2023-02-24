@@ -1,25 +1,4 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "allowJs": true,
-    "module": "CommonJS",
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "baseUrl": "./src",
-    "outDir": "dist",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "jsx": "react-jsx",
-    "paths": {
-      "assets/*": ["./assets/*"],
-      "components/*": ["./components/*"],
-      "pages/*": ["./pages/*"],
-      "routes/*": ["./routes/*"],
-      "scss/*": ["./scss/*"],
-      "store/*": ["./store/*"]
-    }
-  },
-  "include": ["src/**/*"]
+  "files": [],
+  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
 }
