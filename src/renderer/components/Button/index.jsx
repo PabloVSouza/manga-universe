@@ -1,5 +1,40 @@
-const Button = ({ to, className, ...props }) => {
-  return
-}
+import { useNavigate } from "react-router-dom";
+import classNames from "classnames";
+import Image from "components/Image";
 
-export default Button
+import style from "./style.module.scss";
+
+const Button = ({
+  className,
+  children,
+  color,
+  icon,
+  size,
+  theme,
+  to,
+  ...props
+}) => {
+  const navigate = useNavigate();
+
+  const classes = classNames(
+    style.Button,
+    style[theme],
+    style[`size-${size}`],
+    style[color],
+    className
+  );
+  const handleClick = () => {
+    if (to) {
+      navigate(to);
+    }
+  };
+
+  return (
+    <button className={classes} onClick={() => handleClick()} {...props}>
+      {!!icon && <Image src={icon} alt="" pure />}
+      {children}
+    </button>
+  );
+};
+
+export default Button;

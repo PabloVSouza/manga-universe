@@ -1,15 +1,18 @@
-import Window from 'components/Window'
-import TopMenu from 'components/TopMenu'
+import Window from "components/Window";
+import TopMenu from "components/TopMenu";
+import MangaList from "components/MangaList/List";
+import MangaDashboard from "components/MangaDashboard/MangaDashboard";
 
-import style from './style.module.scss'
+import style from "./style.module.scss";
 
 const Home = () => {
   return (
     <Window className={style.Home}>
       <TopMenu />
-      Olá
+      <MangaList />
+      <MangaDashboard />
     </Window>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
