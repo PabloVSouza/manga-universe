@@ -60,27 +60,25 @@ $green: rgba(0, 255, 0, 0.4);
   }
 
   &.closeButton {
-    $closeButtonColor: rgb(254, 108, 91);
-    $closeButtonDefaultBorder: 1px solid rgba(0, 0, 0, 0.1);
+    $closeButtonColor: $red-transparent;
+    $closeButtonDefaultBorder: 1px solid $white-transparent;
 
     position: absolute;
+    top: 0;
     right: 0;
     z-index: 7;
     width: 40px;
     height: 30px;
     border: none;
     border-radius: unset;
-    border-bottom-left-radius: 10px;
-    border-bottom: $closeButtonDefaultBorder;
-    border-left: $closeButtonDefaultBorder;
+    border-bottom-left-radius: $radius-default;
+    background-color: $white-transparent;
     &::after {
       content: "X";
     }
 
     &:hover {
-      background-color: $closeButtonColor;
-      border-bottom: 1px solid $closeButtonColor;
-      border-left: 1px solid $closeButtonColor;
+      background-color: $red-transparent;
     }
   }
 

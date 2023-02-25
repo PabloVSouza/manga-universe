@@ -4,7 +4,7 @@ import MangaListItem from "./Item/Item";
 
 import style from "./style.module.scss";
 
-const SearchMangaList = ({ list, itemsPerPage = 50 }) => {
+const SearchMangaList = ({ list, itemsPerPage = 20 }) => {
   const [offset, setOffset] = useState(0);
   const endOffset = offset + itemsPerPage;
   const currentItems = list.slice(offset, endOffset);

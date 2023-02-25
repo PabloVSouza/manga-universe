@@ -26,7 +26,7 @@ const SearchManga = () => {
   }, [search]);
 
   return (
-    <Window className={style.SearchManga}>
+    <Window close className={style.SearchManga} to="/">
       <input
         className={style.input}
         type="text"

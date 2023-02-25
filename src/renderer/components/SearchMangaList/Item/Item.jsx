@@ -1,5 +1,7 @@
+import style from "./style.module.scss";
+
 const MangaListItem = ({ data }) => {
-  return <div>{data.title}</div>;
+  return <li className={style.mangaListItem}>{data.title}</li>;
 };
 
 export default MangaListItem;
