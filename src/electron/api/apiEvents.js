@@ -14,6 +14,17 @@ const eventList = () => {
       });
     });
   });
+
+  ipcMain.handle("getMangaDetails", async (event, payload) => {
+    return new Promise((resolve) => {
+      axios({
+        method: "get",
+        url: `https://mangayabu.top/api/show3.php?id=${payload}`,
+      }).then((res) => {
+        resolve(res.data);
+      });
+    });
+  });
 };
 
 export default eventList;

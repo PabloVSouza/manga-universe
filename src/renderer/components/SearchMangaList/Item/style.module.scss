@@ -1,9 +1,73 @@
 .mangaListItem {
   background: $white-transparent;
-  height: 40px;
   margin-bottom: 1px;
   cursor: pointer;
-  display: flex;
+  display: grid;
   align-items: center;
-  padding: 0 10px;
+  transition: all 0.6s ease;
+  grid-template: "TITLE COVER";
+  min-height: 200px;
+
+  .name {
+    max-width: 350px;
+    grid-area: TITLE;
+    padding: 10px;
+    .title {
+      font-size: 25px;
+      font-weight: 300;
+    }
+    .genre {
+      font-size: 15px;
+      padding: 10px 0;
+    }
+  }
+
+  .cover {
+    width: 1fr;
+    height: 100%;
+    position: relative;
+    grid-area: COVER;
+    .chapters {
+      position: absolute;
+      z-index: 1;
+      right: 0;
+      bottom: 0;
+      min-width: 40px;
+      padding: 10px 5px;
+      box-shadow: $shadow-default;
+      background: $white-transparent;
+      backdrop-filter: $blur-default;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .coverImage {
+      z-index: 0;
+      height: inherit;
+      right: 0;
+      position: absolute;
+      transition: all 0.6s ease;
+    }
+  }
+  .synopsis {
+    grid-area: SYNOPSIS;
+    max-width: 60%;
+    padding: 10px;
+  }
+
+  .buttonArea {
+    grid-area: BUTTON;
+    height: 80px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: $white-transparent;
+  }
+}
+
+.extended {
+  grid-template:
+    "TITLE COVER"
+    "SYNOPSIS COVER"
+    "BUTTON BUTTON";
 }

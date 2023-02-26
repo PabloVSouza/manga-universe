@@ -3,6 +3,8 @@ import { useState, useEffect, useMemo } from "react";
 import Window from "components/Window";
 import SearchMangaList from "components/SearchMangaList/List";
 
+import lang from "lang";
+
 import style from "./style.module.scss";
 
 const SearchManga = () => {
@@ -29,6 +31,7 @@ const SearchManga = () => {
     <Window close className={style.SearchManga} to="/">
       <input
         className={style.input}
+        placeholder={lang.SearchManga.textPlaceholder}
         type="text"
         onChange={(e) => setSearch(e.target.value)}
       />

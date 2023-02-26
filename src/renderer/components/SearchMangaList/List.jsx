@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactPaginate from "react-paginate";
+
 import MangaListItem from "./Item/Item";
+
+import lang from "lang";
 
 import style from "./style.module.scss";
 
-const SearchMangaList = ({ list, itemsPerPage = 20 }) => {
+const SearchMangaList = ({ list, itemsPerPage = 20, reset }) => {
   const [offset, setOffset] = useState(0);
   const endOffset = offset + itemsPerPage;
   const currentItems = list.slice(offset, endOffset);
@@ -30,11 +33,12 @@ const SearchMangaList = ({ list, itemsPerPage = 20 }) => {
         nextClassName={style.next}
         pageClassName={style.page}
         activeClassName={style.active}
-        nextLabel="next >"
         onPageChange={handlePageClick}
-        pageRangeDisplayed={5}
+        pageRangeDisplayed={3}
+        marginPagesDisplayed={3}
         pageCount={totalPages}
-        previousLabel="< previous"
+        nextLabel={lang.SearchManga.pagination.next}
+        previousLabel={lang.SearchManga.pagination.previous}
         renderOnZeroPageCount={null}
       />
     </div>

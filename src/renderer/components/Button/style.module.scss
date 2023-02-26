@@ -29,6 +29,7 @@ $green: rgba(0, 255, 0, 0.4);
   }
   &.size-xl {
     width: 200px;
+    padding: 20px;
   }
 
   //Colors
@@ -87,7 +88,7 @@ $green: rgba(0, 255, 0, 0.4);
     border: none;
     box-shadow: 5px 5px 9px -7px rgba(0, 0, 0, 0.6);
     background-color: $bgWhite;
-    border-radius: 10px;
+    border-radius: $radius-default;
 
     img {
       height: 100%;
