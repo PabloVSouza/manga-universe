@@ -46,6 +46,7 @@ const MangaListItem = ({ data }) => {
             <Button
               theme="roundedRectangle"
               size="xl"
+              color="green"
               to={`/download/${data.slug}`}
             >
               {lang.SearchManga.goToPage}

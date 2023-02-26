@@ -7,7 +7,7 @@ import lang from "lang";
 
 import style from "./style.module.scss";
 
-const SearchMangaList = ({ list, itemsPerPage = 20, reset }) => {
+const SearchMangaList = ({ list, itemsPerPage = 10, reset }) => {
   const [offset, setOffset] = useState(0);
   const endOffset = offset + itemsPerPage;
   const currentItems = list.slice(offset, endOffset);

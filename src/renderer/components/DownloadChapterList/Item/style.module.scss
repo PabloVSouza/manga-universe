@@ -5,7 +5,7 @@
   background: $white-transparent;
   border-radius: $radius-default;
   box-shadow: $shadow-default;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: $transition-bg-default, $transition-color-default;
   min-width: 100px;
   display: flex;
   justify-content: center;

@@ -30,16 +30,19 @@
       justify-content: center;
       align-items: center;
       border-radius: $radius-default;
-      backdrop-filter: $blur-default;
       height: 35px;
       cursor: pointer;
       box-shadow: $shadow-default;
+      transition: $transition-bg-default;
     }
 
     .page,
     .break {
       background: $black-transparent;
       aspect-ratio: 1/1;
+      &:hover {
+        background: $black;
+      }
     }
 
     .previous,
@@ -50,10 +53,16 @@
 
     .previous {
       background: $red-transparent;
+      &:hover {
+        background: $red;
+      }
     }
 
     .next {
       background: $green-transparent;
+      &:hover {
+        background: $green;
+      }
     }
 
     .active,
@@ -61,6 +70,9 @@
       color: $black;
       background: $white-transparent;
       font-weight: bold;
+      &:hover {
+        background: $white;
+      }
     }
   }
 }

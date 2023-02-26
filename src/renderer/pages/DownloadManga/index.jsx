@@ -6,6 +6,7 @@ import Window from "components/Window";
 import Image from "components/Image";
 
 import style from "./style.module.scss";
+import DownloadChapterHeader from "components/DownloadChapterHeader";
 import DownloadChapterList from "components/DownloadChapterList/list";
 
 const DownloadManga = () => {
@@ -31,21 +32,13 @@ const DownloadManga = () => {
 
   return (
     !!mangaData && (
-      <Window close to={"/"} className={style.downloadManga}>
-        <div className={style.header}>
-          <div className={style.container}>
-            <div className={style.title}>
-              <h1>{mangaData.chapter_name}</h1>
-              <div className={style.chapter}>
-                {mangaData.genres.map((val) => (
-                  <div key={val}>{val}</div>
-                ))}
-              </div>
-            </div>
-            <Image className={style.cover} src={mangaData.cover} />
-            <p className={style.description}>{mangaData.description}</p>
-          </div>
-        </div>
+      <Window
+        closebar
+        to={"/"}
+        className={style.downloadManga}
+        contentClassName={style.content}
+      >
+        <DownloadChapterHeader mangaData={mangaData} />
 
         <div className={style.chapters}>
           <h1>{lang.DownloadManga.chaptersTitle}</h1>

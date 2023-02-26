@@ -8,6 +8,20 @@
   box-shadow: $shadow-default;
   backdrop-filter: $blur-default;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+
+  .topBar {
+    width: 100%;
+    height: 35px;
+    background: $white-transparent;
+  }
+
+  .content {
+    flex-grow: 1;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
 }

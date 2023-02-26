@@ -18,9 +18,9 @@ const Button = ({
 
   const classes = classNames(
     style.Button,
+    style[color],
     style[theme],
     style[`size-${size}`],
-    style[color],
     className
   );
   const handleClick = () => {

@@ -28,7 +28,12 @@ const SearchManga = () => {
   }, [search]);
 
   return (
-    <Window close className={style.SearchManga} to="/">
+    <Window
+      close
+      className={style.searchManga}
+      contentClassName={style.content}
+      to="/"
+    >
       <input
         className={style.input}
         placeholder={lang.SearchManga.textPlaceholder}
