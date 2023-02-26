@@ -7,8 +7,13 @@ const SearchManga = {
   },
 };
 
+const DownloadManga = {
+  chaptersTitle: "Capítulos",
+};
+
 const lang = {
   SearchManga,
+  DownloadManga,
 };
 
 export default lang;

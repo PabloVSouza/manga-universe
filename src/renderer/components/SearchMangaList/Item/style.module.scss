@@ -53,11 +53,12 @@
     grid-area: SYNOPSIS;
     max-width: 60%;
     padding: 10px;
+    margin-bottom: auto;
   }
 
   .buttonArea {
     grid-area: BUTTON;
-    height: 80px;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -66,6 +67,7 @@
 }
 
 .extended {
+  min-height: 500px;
   grid-template:
     "TITLE COVER"
     "SYNOPSIS COVER"

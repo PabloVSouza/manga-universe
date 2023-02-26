@@ -1,0 +1,63 @@
+.downloadManga {
+  width: 90%;
+  height: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: auto;
+
+  .header {
+    background: $white-transparent;
+    width: 100%;
+    padding: 50px 10px 10px 10px;
+    display: flex;
+    justify-content: center;
+
+    .container {
+      display: grid;
+      width: 100%;
+      max-width: 1000px;
+      grid-template:
+        "TITLE COVER"
+        "DESCRIPTION COVER";
+
+      .title {
+        grid-area: TITLE;
+        .chapter {
+          margin: 10px 0;
+          display: flex;
+          gap: 5px;
+
+          div {
+            background: $white-transparent;
+            border-radius: $radius-default;
+            padding: 5px;
+            box-shadow: $shadow-default;
+          }
+        }
+      }
+    }
+
+    .cover {
+      grid-area: COVER;
+      height: 400px;
+    }
+
+    .description {
+      grid-area: DESCRIPTION;
+    }
+  }
+
+  .chapters {
+    width: 100%;
+    flex-grow: 1;
+    margin-top: 1px;
+    background: $white-transparent;
+    padding-bottom: 10px;
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+    }
+  }
+}

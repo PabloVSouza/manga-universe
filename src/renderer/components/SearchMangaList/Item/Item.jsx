@@ -43,7 +43,11 @@ const MangaListItem = ({ data }) => {
             {ReactHtmlParser(mangaDetails.synopsis)}
           </div>
           <div className={style.buttonArea}>
-            <Button theme="roundedRectangle" size="xl">
+            <Button
+              theme="roundedRectangle"
+              size="xl"
+              to={`/download/${data.slug}`}
+            >
               {lang.SearchManga.goToPage}
             </Button>
           </div>
