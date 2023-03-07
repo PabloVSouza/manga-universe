@@ -4,6 +4,7 @@ const axios = require("axios")
 const qs = require("qs")
 const _ = require("lodash")
 const fs = require("fs")
+const {toJson} = require('really-relaxed-json')
 const downloadDir = `${app.getPath("userData")}/mangas`
 let siteUrl = ""
 let win
@@ -84,10 +85,14 @@ const eventList = () => {
 			getChapterPages(currentPage)
 
 			function getChapterPages(page) {
-				axios
-					.get(
-						`${siteUrl}/series/chapters_list.json?page=${page}&id_serie=${id}`
-					)
+        axios({
+          method: "get",
+          url: `${siteUrl}/series/chapters_list.json?page=${page}&id_serie=${id}`,
+          headers: {
+            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "x-requested-with": "XMLHttpRequest",
+          }
+        })
 					.then((res) => {
 						let chapters = res.data.chapters
 						if (chapters.length != undefined) {
@@ -123,15 +128,15 @@ const eventList = () => {
 			coverName = decodeURI(mangaData.cover).substring(
 				decodeURI(mangaData.cover).lastIndexOf("\\") + 1
 			)
-		}
-
+    }
+    
 		let { id_release, link } = chapter.releases[
 			Object.getOwnPropertyNames(chapter.releases)[0]
-		]
+    ]
+    
+    let key = getKey(link)
 
-		let disqusKey = await getDisqusKey(link)
-
-		const pages = await getPages(id_release, disqusKey)
+		const pages = await getPages(id_release, key)
 
 		let fileList = []
 
@@ -168,36 +173,23 @@ const eventList = () => {
 	})
 }
 
-const getDisqusKey = (link) => {
-	return new Promise((resolve) => {
-		axios
-			.get(`${siteUrl}${link}`)
-			.then((getDisqusKey) => {
-				let disqusKey = getDisqusKey.data
-					.substring(getDisqusKey.data.lastIndexOf('this.page.identifier = "'))
-					.substring(
-						getDisqusKey.data
-							.substring(
-								getDisqusKey.data.lastIndexOf('this.page.identifier = "')
-							)
-							.indexOf('"') + 1,
-						getDisqusKey.data
-							.substring(
-								getDisqusKey.data.lastIndexOf('this.page.identifier = "')
-							)
-							.indexOf(";") - 1
-					)
+const getKey = async (link) => {
+  const { data } = await axios.get(`${siteUrl}${link}`)
+      
+    const init = data.substring(data.indexOf("config = {") + 9)
+    const end = init.substring(0, init.indexOf("}") + 1)
 
-				resolve(disqusKey)
-			})
-			.catch((e) => {
-				console.log(e)
-				win.webContents.send("connection_error")
-			})
-	})
+    const json = toJson(end)
+    
+    return new Promise((resolve) => {
+      resolve(JSON.parse(json.apiKey))
+  })
+
 }
 
-const createDirectory = (mangaData, chapter) => {
+
+
+const createDirectory = async (mangaData, chapter) => {
 	return new Promise((resolve) => {
 		const filterFolderName = mangaData.name.replace(":", "-")
 		const pagesDownloadDir = `${downloadDir}/${filterFolderName}/${chapter.number}/`
@@ -211,14 +203,11 @@ const createDirectory = (mangaData, chapter) => {
 	})
 }
 
-const downloadCover = (mangaData, dirData) => {
+const downloadCover = async (mangaData, dirData) => {
 	return new Promise((resolve, reject) => {
 		const coverUrl = mangaData.cover
 		const coverDownloadDir = `${downloadDir}/${dirData.filterFolderName}`
-		const coverFileName = coverUrl.substring(
-			coverUrl.lastIndexOf("/") + 1,
-			coverUrl.lastIndexOf("?")
-		)
+		const coverFileName = coverUrl.substring(coverUrl.lastIndexOf("/") + 1)
 
 		axios({
 			method: "get",
@@ -240,11 +229,11 @@ const downloadCover = (mangaData, dirData) => {
 	})
 }
 
-const getPages = (id_release, disqusKey) => {
+const getPages = async (id_release, key) => {
 	return new Promise((resolve) => {
 		axios
-			.get(`${siteUrl}/leitor/pages/${id_release}.json?key=${disqusKey}`)
-			.then((res) => {
+			.get(`${siteUrl}/leitor/pages/${id_release}.json?key=${key}`)
+      .then((res) => {
 				resolve(res.data.images)
 			})
 			.catch((e) => {
@@ -254,7 +243,8 @@ const getPages = (id_release, disqusKey) => {
 	})
 }
 
-const downloadPage = (page, dirData) => {
+const downloadPage = async (pageData, dirData) => {
+  const page = pageData.legacy
 	return new Promise((resolve) => {
 		let fileName = page.substring(page.lastIndexOf("/") + 1)
 

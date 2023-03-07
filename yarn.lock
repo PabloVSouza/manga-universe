@@ -8405,6 +8405,11 @@ readdirp@~3.5.0:
   dependencies:
     picomatch "^2.2.1"
 
+really-relaxed-json@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/really-relaxed-json/-/really-relaxed-json-0.3.2.tgz#0f7dd3bbf279d8c04d2654d501394d090927faf5"
+  integrity sha512-dWDnjzCnOyjfY26IHMEomqE5D3btCs5D7I8iSAeqPs+Jxm1m6W/jwn0cxlXW8u24RD29bi5llLOEVN87JUrqag==
+
 regenerate-unicode-properties@^8.2.0:
   version "8.2.0"
   resolved "https://registry.yarnpkg.com/regenerate-unicode-properties/-/regenerate-unicode-properties-8.2.0.tgz#e5de7111d655e7ba60c057dbe9ff37c87e65cdec"

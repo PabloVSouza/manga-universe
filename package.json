@@ -24,6 +24,7 @@
     "lodash": "^4.17.20",
     "nedb": "^1.8.0",
     "qs": "^6.9.4",
+    "really-relaxed-json": "^0.3.2",
     "vex-dialog": "^1.1.0",
     "vex-js": "^4.1.0",
     "vue": "^3.0.0",
